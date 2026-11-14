@@ -1,680 +1,922 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-  <base target="_top">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>AMARA LIVING — Project & Cost Manager</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#4338ca">
+  <meta name="description" content="KAYANA APPS - Master Produk dan Manajemen Multi-Proyek">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>Database Produk & Manajemen Multi-Proyek</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    :root{--ink:#172536;--muted:#738195;--line:#e5eaf0;--blue:#315f86;--pale:#eef4f8;--bg:#f5f7fa;--white:#fff;--green:#21866a;--red:#c44e4e;--gold:#b8860b}
-    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;padding-bottom:75px}
-    .shell{display:grid;grid-template-columns:255px 1fr;min-height:100vh}
-    
-    /* Sidebar PC */
-    .side{background:#fff;border-right:1px solid var(--line);padding:26px 17px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
-    .brand{display:flex;gap:12px;align-items:center;padding:0 6px 24px;border-bottom:1px solid var(--line);margin-bottom:14px}
-    .mark{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#315f86,#1e3f5c);color:#fff;display:grid;place-items:center;font-size:16px;font-weight:800;letter-spacing:.5px;box-shadow:0 4px 10px rgba(49,95,134,.25);flex-shrink:0}
-    .brand strong{display:block;font-size:16px;letter-spacing:.6px;color:var(--ink);font-weight:800}.brand small{color:var(--muted);font-size:11px;display:block;margin-top:1px}
-    .navlabel{font-size:10px;letter-spacing:1.3px;color:#9aa5b2;font-weight:700;padding:8px 10px 7px}
-    .nav button{width:100%;border:0;background:transparent;text-align:left;padding:11px 12px;border-radius:10px;color:#657487;display:flex;gap:12px;align-items:center;cursor:pointer;margin:2px 0;font:inherit}
-    .nav button.active,.nav button:hover{background:var(--pale);color:var(--blue);font-weight:650}.nav .ico{width:18px;text-align:center;font-size:16px}
-    .sidefoot{margin-top:auto;padding:14px 10px;color:var(--muted);font-size:11px;border-top:1px solid var(--line)}
-    
-    /* Mobile Top Header */
-    .mob-header{display:none;position:sticky;top:0;z-index:999;background:#fff;border-bottom:1px solid var(--line);padding:12px 16px;justify-content:space-between;align-items:center;box-shadow:0 2px 8px rgba(0,0,0,0.03)}
-    .mob-brand{display:flex;align-items:center;gap:10px}
-    .mob-brand .mark{width:34px;height:34px;font-size:13px;border-radius:10px}
-    .mob-brand strong{display:block;font-size:15px;letter-spacing:.5px;font-weight:800;color:var(--ink);line-height:1.1}
-    .mob-brand small{font-size:10px;color:var(--muted);display:block}
-
-    /* Mobile Bottom Navigation */
-    .mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);padding:8px 4px;z-index:1000;justify-content:space-around;box-shadow:0 -4px 12px rgba(0,0,0,0.05)}
-    .mob-nav button{background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;color:var(--muted);cursor:pointer;font:inherit;flex:1;padding:2px 0}
-    .mob-nav button.active{color:var(--blue);font-weight:700}
-    .mob-nav .ico{font-size:18px}
-
-    main{padding:30px 34px;max-width:1440px;width:100%;margin:auto}
-    .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;gap:15px}
-    .brand-badge{display:inline-block;font-size:11px;font-weight:800;letter-spacing:1.2px;color:var(--blue);background:var(--pale);padding:4px 10px;border-radius:6px;margin-bottom:6px;text-transform:uppercase}
-    h1{font-size:25px;margin:0 0 4px;letter-spacing:-.5px}.sub{color:var(--muted);font-size:13px}
-    .topright{display:flex;align-items:center;gap:10px}
-    .pill{padding:7px 11px;border-radius:30px;background:#e9f5ef;color:var(--green);font-size:11px;font-weight:700}
-    .btn{border:0;border-radius:9px;padding:10px 15px;background:var(--blue);color:white;font-weight:650;cursor:pointer;font:inherit;display:inline-flex;align-items:center;justify-content:center;gap:6px}
-    .btn.secondary{background:#edf2f6;color:#40566a}.btn.danger{background:#fff0f0;color:var(--red);padding:6px 9px}.btn.success{background:var(--green);color:#fff}.btn:disabled{opacity:.5;cursor:not-allowed}
-    .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:20px}.stat,.panel{background:white;border:1px solid var(--line);border-radius:14px;padding:18px}
-    .stat .label{font-size:12px;color:var(--muted)}.stat .value{font-size:22px;font-weight:750;margin-top:7px;letter-spacing:-.5px}.stat .hint{font-size:11px;color:#9aa5b2;margin-top:2px}
-    .panel{margin-bottom:16px}.panelhead{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:15px;flex-wrap:wrap}.panel h2{font-size:15px;margin:0}.panel p.desc{color:var(--muted);font-size:12px;margin:4px 0 0}
-    .tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:560px}th{text-align:left;color:#8b97a5;font-size:10px;text-transform:uppercase;letter-spacing:.8px;font-weight:700;padding:10px;border-bottom:1px solid var(--line)}td{padding:12px 10px;border-bottom:1px solid #f0f2f5;font-size:13px}tr:last-child td{border-bottom:0}.right{text-align:right}.muted{color:var(--muted)}.empty{text-align:center;padding:32px;color:var(--muted)}
-    .formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.field{display:flex;flex-direction:column;gap:6px}.field.full{grid-column:1/-1}.field label{font-size:11px;color:#68788a;font-weight:650}
-    input,select,textarea{width:100%;padding:10px 11px;border:1px solid #dfe5eb;border-radius:8px;background:#fff;color:var(--ink);font:inherit;outline:none}input:focus,select:focus,textarea:focus{border-color:#7d9bb4;box-shadow:0 0 0 3px #eaf1f6}textarea{resize:vertical;min-height:70px}
-    .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}.hidden{display:none!important}.split{display:grid;grid-template-columns:1.15fr .85fr;gap:16px}
-    .money{font-variant-numeric:tabular-nums}.totalbox{background:#f1f6f9;border-radius:11px;padding:15px;margin-top:12px}.totalrow{display:flex;justify-content:space-between;margin:6px 0;color:#5e6d7e;font-size:13px}.totalrow.grand{border-top:1px solid #dce5eb;padding-top:12px;margin-top:12px;color:var(--ink);font-size:17px;font-weight:800}
-    .notice{padding:11px 13px;border-radius:9px;background:#edf5fa;color:#45647c;font-size:12px;margin-bottom:15px}
-    .toast{position:fixed;right:22px;bottom:82px;background:#20394e;color:#fff;padding:12px 16px;border-radius:10px;box-shadow:0 8px 28px #132a3b30;z-index:2000;max-width:350px}
-    .section{display:none}.section.active{display:block}.tag{display:inline-block;background:#eef4f8;color:#45647c;border-radius:20px;padding:4px 8px;font-size:10px;font-weight:700}
-    
-    .modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:3000;display:flex;justify-content:center;align-items:center;padding:16px}
-    .modal-card{background:#fff;width:100%;max-width:850px;max-height:90vh;border-radius:16px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 15px 40px rgba(0,0,0,0.2)}
-    .modal-header{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
-    .modal-body{padding:20px;overflow-y:auto;background:#fff}
-    .invoice-box{background:#fff;border:1px solid var(--line);padding:24px;border-radius:8px;font-size:13px}
-    .inv-head{display:flex;justify-content:space-between;margin-bottom:20px;border-bottom:2px solid var(--line);padding-bottom:16px;gap:12px;flex-wrap:wrap}
-    .inv-title{font-size:22px;font-weight:800;color:var(--blue);letter-spacing:.5px}
-
-    @media(max-width:900px){
-      .shell{grid-template-columns:1fr}
-      .side{display:none}
-      .mob-header{display:flex}
-      .mob-nav{display:flex}
-      main{padding:18px 14px}
-      .top{margin-bottom:18px}
-      .top .topright{display:none}
-      .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-      .split{grid-template-columns:1fr}
-    }
-    @media(max-width:520px){
-      .grid{grid-template-columns:1fr}
-      .stat{padding:14px}
-      .stat .value{font-size:19px}
-      .formgrid{grid-template-columns:1fr}
-      .field.full{grid-column:auto}
-      h1{font-size:21px}
-    }
-    @media print {
-      body * { visibility: hidden; }
-      #pdfModal, #pdfModalContent, #pdfModalContent * { visibility: visible; }
-      #pdfModal { position: absolute; left: 0; top: 0; width: 100%; background: #fff; padding: 0; }
-      .modal-card { box-shadow: none; max-height: none; width: 100%; max-width: 100%; }
-      .modal-header { display: none !important; }
-    }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; }
   </style>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
 
-<header class="mob-header">
-  <div class="mob-brand">
-    <div class="mark">AL</div>
-    <div>
-      <strong>AMARA LIVING</strong>
-      <small>Interior & Cost Manager</small>
-    </div>
-  </div>
-  <div style="display:flex;align-items:center;gap:8px;">
-    <span class="pill" style="padding:5px 9px;font-size:10px;">● ONLINE</span>
-    <button class="btn secondary" style="padding:7px 10px;font-size:12px;" onclick="refresh()">↻</button>
-  </div>
-</header>
-
-<div class="shell">
-  <aside class="side">
-    <div class="brand">
-      <div class="mark">AL</div>
-      <div>
-        <strong>AMARA LIVING</strong>
-        <small>Interior & Cost Manager</small>
-      </div>
-    </div>
-    <div class="navlabel">MENU UTAMA</div>
-    <nav class="nav">
-      <button class="active" data-page="dashboard"><span class="ico">▦</span>Beranda</button>
-      <button data-page="projects"><span class="ico">▤</span>Data Proyek</button>
-      <button data-page="quotation"><span class="ico">📄</span>PDF Penawaran</button>
-      <button data-page="payments"><span class="ico">💰</span>Pembayaran & Piutang</button>
-      <button data-page="profit"><span class="ico">📊</span>Laporan Profit</button>
-      <button data-page="sales"><span class="ico">▥</span>Riwayat Penawaran</button>
-    </nav>
-    <div class="sidefoot">
-      <strong>© AMARA LIVING</strong><br>
-      <span id="dbState">Menghubungkan…</span>
-    </div>
-  </aside>
-
-  <div class="mob-nav">
-    <button class="active" data-page="dashboard"><span class="ico">▦</span>Beranda</button>
-    <button data-page="projects"><span class="ico">▤</span>Proyek</button>
-    <button data-page="quotation"><span class="ico">📄</span>Penawaran</button>
-    <button data-page="payments"><span class="ico">💰</span>Piutang</button>
-    <button data-page="profit"><span class="ico">📊</span>Profit</button>
-    <button data-page="sales"><span class="ico">▥</span>Riwayat</button>
-  </div>
-
-  <main>
-    <div class="top">
-      <div>
-        <div class="brand-badge">AMARA LIVING WORKSPACE</div>
-        <h1 id="pageTitle">Beranda</h1>
-        <div class="sub" id="pageSub">Ringkasan operasional dan keuangan interior Amara Living.</div>
-      </div>
-      <div class="topright">
-        <span class="pill">● DATABASE TERHUBUNG</span>
-        <button class="btn secondary" onclick="refresh()">↻ Segarkan</button>
-      </div>
-    </div>
-
-    <!-- 1. DASHBOARD -->
-    <section class="section active" id="dashboard">
-      <div class="grid">
-        <div class="stat"><div class="label">Total Proyek</div><div class="value" id="statProjects">0</div><div class="hint">Seluruh proyek terdaftar</div></div>
-        <div class="stat"><div class="label">Proyek Aktif</div><div class="value" id="statActive">0</div><div class="hint">Sedang berjalan</div></div>
-        <div class="stat"><div class="label">Total Nilai Penawaran</div><div class="value money" id="statSales">Rp0</div><div class="hint">Akumulasi kontrak tersimpan</div></div>
-        <div class="stat"><div class="label">Total Sisa Piutang</div><div class="value money" id="statReceivables" style="color:var(--red)">Rp0</div><div class="hint">Belum lunas dari klien</div></div>
-      </div>
-      <div class="panel">
-        <div class="panelhead"><div><h2>Proyek Terbaru — Amara Living</h2><p class="desc">Daftar proyek interior yang terakhir dimasukkan.</p></div><button class="btn" onclick="showPage('projects')">Kelola Proyek</button></div>
-        <div id="recentProjects"></div>
-      </div>
-      <div class="notice">Alur Kerja <b>Amara Living</b>: Buat proyek di menu <b>Proyek</b> → Input Bahan & Biaya Jasa → Cetak <b>PDF Penawaran</b> resmi → Catat Termin Pembayaran di menu <b>Piutang</b>.</div>
-    </section>
-
-    <!-- 2. DATA PROYEK -->
-    <section class="section" id="projects">
-      <div class="split">
-        <div class="panel">
-          <div class="panelhead"><div><h2>Daftar Proyek</h2><p class="desc">Pilih proyek untuk mengelola rincian bahan dan biaya.</p></div></div>
-          <div id="projectList"></div>
+  <!-- Header -->
+  <header class="bg-indigo-700 text-white shadow-md sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+      <div class="flex items-center gap-3">
+        <div class="bg-white/10 p-2 rounded-lg backdrop-blur-sm">
+          <i class="fa-solid me-2 fa-boxes-stacked text-2xl text-indigo-200"></i>
         </div>
-        <div class="panel">
-          <div class="panelhead"><div><h2>Buat Proyek Baru</h2><p class="desc">Informasi klien dan pekerjaan.</p></div></div>
-          <form id="projectForm">
-            <div class="formgrid">
-              <div class="field full"><label>Nama Proyek *</label><input name="projectName" required placeholder="Contoh: Kitchen Set Apartemen Klien A"></div>
-              <div class="field"><label>Nama Klien</label><input name="clientName" placeholder="Nama pelanggan"></div>
-              <div class="field"><label>Tanggal Proyek</label><input name="projectDate" type="date"></div>
-              <div class="field"><label>Markup Keuntungan (%)</label><input name="markupPercent" type="number" min="0" max="1000" step="0.1" value="30"></div>
-              <div class="field full"><label>Catatan</label><textarea name="notes" placeholder="Lokasi atau spesifikasi khusus"></textarea></div>
-            </div>
-            <div class="actions"><button class="btn" type="submit">+ Buat Proyek</button></div>
-          </form>
-        </div>
-      </div>
-
-      <div class="panel" id="materialsPanel">
-        <div class="panelhead"><div><h2 id="materialTitle">Kebutuhan Bahan</h2><p class="desc">Input material, kuantitas, satuan, dan harga modal.</p></div><span class="tag" id="materialCount">0 ITEM</span></div>
-        <form id="materialForm" class="hidden">
-          <div class="formgrid">
-            <div class="field"><label>Nama Bahan *</label><input name="name" required placeholder="Contoh: Multiplek 18mm HPL"></div>
-            <div class="field"><label>Satuan</label><input name="unit" value="lembar" placeholder="pcs, m², meter"></div>
-            <div class="field"><label>Jumlah *</label><input name="quantity" type="number" min="0.01" step="any" required placeholder="0"></div>
-            <div class="field"><label>Harga Modal / Satuan (Rp) *</label><input name="unitPrice" type="number" min="0" step="1" required placeholder="0"></div>
-          </div>
-          <div class="actions"><button class="btn" type="submit">Simpan Bahan</button></div>
-        </form>
-        <div id="materialsTable" class="empty">Pilih proyek di daftar untuk menampilkan kebutuhan bahan.</div>
-      </div>
-
-      <div class="panel" id="costsPanel">
-        <div class="panelhead"><div><h2 id="costTitle">Biaya Jasa & Operasional (Estimasi RAB)</h2><p class="desc">Tenaga kerja, transport, pemasangan, dan biaya lain.</p></div><span class="tag" id="costCount">0 ITEM</span></div>
-        <form id="costForm" class="hidden">
-          <div class="formgrid">
-            <div class="field"><label>Kategori Biaya</label><select name="category"><option value="labor">Tenaga Kerja / Tukang</option><option value="transport">Transportasi</option><option value="installation">Pemasangan / Instalasi</option><option value="other">Biaya Lainnya</option></select></div>
-            <div class="field"><label>Keterangan Biaya *</label><input name="name" required placeholder="Contoh: Tukang pasang 7 hari"></div>
-            <div class="field"><label>Nominal (Rp) *</label><input name="amount" type="number" min="1" step="1" required placeholder="0"></div>
-          </div>
-          <div class="actions"><button class="btn" type="submit">+ Tambah Biaya RAB</button></div>
-        </form>
-        <div id="costsTable" class="empty">Pilih proyek untuk mengelola biaya jasa.</div>
-      </div>
-    </section>
-
-    <!-- 3. PDF PENAWARAN -->
-    <section class="section" id="quotation">
-      <div class="panel">
-        <div class="panelhead">
-          <div><h2>PDF Penawaran Profesional — AMARA LIVING</h2><p class="desc">Pilih proyek untuk melihat pratinjau dokumen penawaran resmi berlogo perusahaan.</p></div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <button class="btn secondary" id="saveSaleBtn" onclick="saveQuotationToHistory()">Simpan ke Riwayat</button>
-            <button class="btn success" id="printPdfBtn" onclick="openPdfModal()" disabled>🖨️ Cetak / Unduh PDF</button>
-          </div>
-        </div>
-        <div class="formgrid" style="margin-bottom:20px;">
-          <div class="field"><label>Pilih Proyek</label><select id="quotProjectId"><option value="">Pilih proyek…</option></select></div>
-          <div class="field"><label>Markup Khusus Proyek (%)</label><div style="display:flex;gap:8px;"><input id="quotMarkup" type="number" min="0" max="1000" step="0.1" value="30"><button class="btn secondary" type="button" onclick="saveQuotMarkup()">Simpan</button></div></div>
-        </div>
-        <div class="invoice-box" id="quotPreviewBox">
-          <div class="empty">Pilih proyek terlebih dahulu untuk menampilkan penawaran profesional AMARA LIVING.</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 4. PEMBAYARAN & PIUTANG -->
-    <section class="section" id="payments">
-      <div class="split">
-        <div class="panel">
-          <div class="panelhead"><div><h2>Riwayat Pembayaran & Piutang</h2><p class="desc">Pencatatan DP, termin progres, dan pelunasan.</p></div></div>
-          <div class="field"><label>Pilih Proyek</label><select id="payProjectSelect"><option value="">Pilih proyek…</option></select></div>
-          <div style="height:14px"></div>
-          <div class="totalbox" id="paymentSummaryBox">
-            <div class="totalrow"><span>Total Tagihan Kontrak</span><strong class="money" id="payGrandTotal">Rp0</strong></div>
-            <div class="totalrow"><span>Total Sudah Dibayar</span><strong class="money" id="payPaidTotal" style="color:var(--green)">Rp0</strong></div>
-            <div class="totalrow grand"><span>Sisa Piutang Klien</span><strong class="money" id="payRemaining" style="color:var(--red)">Rp0</strong></div>
-          </div>
-          <div style="height:14px"></div>
-          <div id="paymentHistoryTable"></div>
-        </div>
-        <div class="panel">
-          <div class="panelhead"><div><h2>Tambah Pembayaran Termin</h2><p class="desc">Catat masuknya DP atau pelunasan dari klien.</p></div></div>
-          <form id="paymentForm">
-            <div class="formgrid">
-              <div class="field"><label>Nama Termin *</label><input name="termName" required placeholder="Contoh: DP 30% / Termin 1"></div>
-              <div class="field"><label>Nominal Bayar (Rp) *</label><input name="amount" type="number" min="1" step="1" required placeholder="0"></div>
-              <div class="field"><label>Tanggal Bayar</label><input name="paymentDate" type="date"></div>
-              <div class="field"><label>Metode</label><select name="method"><option value="Transfer Bank">Transfer Bank</option><option value="Cash / Tunai">Cash / Tunai</option><option value="GIRO / Cek">GIRO / Cek</option></select></div>
-              <div class="field full"><label>Catatan / Keterangan</label><textarea name="notes" placeholder="Nomor referensi atau catatan transfer"></textarea></div>
-            </div>
-            <div class="actions"><button class="btn" type="submit">+ Rekam Pembayaran</button></div>
-          </form>
-        </div>
-      </div>
-    </section>
-
-    <!-- 5. LAPORAN PROFIT -->
-    <section class="section" id="profit">
-      <div class="panel">
-        <div class="panelhead"><div><h2>Laporan Profit Proyek (RAB vs Realisasi)</h2><p class="desc">Bandingkan estimasi anggaran awal dengan realisasi pengeluaran aktual di lapangan.</p></div></div>
-        <div class="field" style="max-width:400px;margin-bottom:15px;"><label>Pilih Proyek</label><select id="profitProjectSelect"><option value="">Pilih proyek…</option></select></div>
-        <div id="profitReportContainer"><div class="empty">Pilih proyek untuk melihat laporan profitabilitas.</div></div>
-      </div>
-      <div class="panel" id="actualCostPanel" style="display:none;">
-        <div class="panelhead"><div><h2>Input Realisasi Biaya Aktual</h2><p class="desc">Catat pengeluaran riil di lapangan (belanja material toko, tukang harian aktual, dll).</p></div></div>
-        <form id="actualCostForm">
-          <div class="formgrid">
-            <div class="field"><label>Keterangan Pengeluaran Aktual *</label><input name="name" required placeholder="Contoh: Belanja tambahan sekrup & engsel di toko"></div>
-            <div class="field"><label>Nominal Aktual (Rp) *</label><input name="amount" type="number" min="1" step="1" required placeholder="0"></div>
-          </div>
-          <div class="actions"><button class="btn" type="submit">+ Tambah Biaya Aktual</button></div>
-        </form>
-        <div style="margin-top:14px;" id="actualCostTable"></div>
-      </div>
-    </section>
-
-    <!-- 6. RIWAYAT -->
-    <section class="section" id="sales">
-      <div class="panel"><div class="panelhead"><div><h2>Riwayat Penawaran Tersimpan</h2><p class="desc">Arsip penawaran harga yang telah dikunci/disimpan.</p></div></div><div id="salesTable"></div></div>
-    </section>
-  </main>
-</div>
-
-<!-- MODAL CETAK PDF -->
-<div id="pdfModal" class="modal-overlay hidden">
-  <div class="modal-card">
-    <div class="modal-header">
-      <strong>Pratinjau Cetak / PDF — AMARA LIVING</strong>
-      <button class="btn secondary" onclick="closePdfModal()">✕ Tutup</button>
-    </div>
-    <div class="modal-body" id="pdfModalContent"></div>
-    <div class="modal-header" style="background:#f9fbfd;justify-content:flex-end;gap:10px;">
-      <button class="btn secondary" onclick="closePdfModal()">Batal</button>
-      <button class="btn" onclick="window.print()">🖨️ Cetak / Simpan sebagai PDF</button>
-    </div>
-  </div>
-</div>
-
-<div id="toast" class="toast hidden"></div>
-
-<script>
-// ==========================================
-// TEMPELKAN URL WEB APP GOOGLE APPS SCRIPT ANDA DI SINI:
-const SCRIPT_URL = 'https://script.google.com/macros/library/d/1HOTkmO7cDCw_v1iPY5NifLtg9vnfgCUslLyjN2CPIcrxDHC5qvBbwMU7/2'; 
-// ==========================================
-
-let DATA={projects:[],materials:[],costs:[],sales:[],payments:[],actualCosts:[]}, selectedProjectId='';
-const money=n=>'Rp'+Number(n||0).toLocaleString('id-ID',{maximumFractionDigits:0});
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.remove('hidden');setTimeout(()=>el.classList.add('hidden'),3200)}
-function busy(btn,on,label){if(!btn)return;btn.disabled=on;if(on){btn.dataset.old=btn.textContent;btn.textContent=label||'Memproses…'}else{btn.textContent=btn.dataset.old||btn.textContent}}
-
-// Pengganti google.script.run untuk koneksi eksternal via Fetch API (CORS/JSONP)
-function callServer(name,args,success,button){
-  busy(button,true);
-  const url = `${SCRIPT_URL}?action=${name}&data=${encodeURIComponent(JSON.stringify(args||{}))}`;
-  
-  // Menggunakan skrip dinamis agar terhindar dari masalah blokir CORS Google Apps Script
-  const callbackName = 'cb_' + Math.random().toString(36).substring(2);
-  window[callbackName] = function(response){
-    delete window[callbackName];
-    document.getElementById('jsonp_script')?.remove();
-    busy(button,false);
-    if(response && response.error){
-      toast(response.error);
-    } else {
-      if(success) success(response);
-    }
-  };
-
-  const script = document.createElement('script');
-  script.id = 'jsonp_script';
-  script.src = `${url}&callback=${callbackName}`;
-  script.onerror = function(){
-    busy(button,false);
-    toast('Gagal terhubung ke server Google Apps Script.');
-  };
-  document.body.appendChild(script);
-}
-
-function refresh(){
-  document.getElementById('dbState').textContent='Menghubungkan…';
-  callServer('getAppData', {}, d => {
-    DATA = d;
-    render();
-    document.getElementById('dbState').textContent='Tersinkronisasi';
-  });
-}
-
-function showPage(page){
-  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-  document.getElementById(page).classList.add('active');
-  document.querySelectorAll('.nav button, .mob-nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===page));
-  const meta={
-    dashboard:['Beranda','Ringkasan operasional dan keuangan interior Amara Living.'],
-    projects:['Data Proyek & RAB','Kelola proyek, klien, material, dan estimasi biaya.'],
-    quotation:['PDF Penawaran Profesional','Buat dan unduh dokumen penawaran resmi berlogo AMARA LIVING.'],
-    payments:['Pembayaran Bertahap & Piutang','Pantau status pembayaran DP, progres, dan pelunasan piutang.'],
-    profit:['Laporan Profit Proyek','Analisis perbandingan biaya RAB vs Realisasi aktual.'],
-    sales:['Riwayat Penawaran','Arsip transaksi dan kontrak penawaran harga.']
-  }[page];
-  document.getElementById('pageTitle').textContent=meta[0];
-  document.getElementById('pageSub').textContent=meta[1];
-  if(page==='quotation') renderQuotation();
-  if(page==='payments') renderPaymentsPage();
-  if(page==='profit') renderProfitPage();
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-
-document.querySelectorAll('.nav button, .mob-nav button').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));
-
-function render(){
-  document.getElementById('statProjects').textContent=DATA.projects.length;
-  document.getElementById('statActive').textContent=DATA.projects.filter(p=>p.status==='Aktif').length;
-  document.getElementById('statSales').textContent=money(DATA.sales.reduce((s,x)=>s+x.grandTotal,0));
-
-  let totalAllSales = 0, totalAllPaid = 0;
-  DATA.sales.forEach(s => totalAllSales += s.grandTotal);
-  DATA.payments.forEach(p => totalAllPaid += p.amount);
-  document.getElementById('statReceivables').textContent = money(Math.max(0, totalAllSales - totalAllPaid));
-
-  const recent=[...DATA.projects].reverse().slice(0,5);
-  document.getElementById('recentProjects').innerHTML=projectTable(recent,false);
-  document.getElementById('projectList').innerHTML=DATA.projects.length?projectTable([...DATA.projects].reverse(),true):'<div class="empty">Belum ada proyek. Buat proyek pertama Anda.</div>';
-  
-  const projOpts='<option value="">Pilih proyek…</option>'+DATA.projects.map(p=>`<option value="${p.projectId}">${esc(p.projectName)}${p.clientName?' — '+esc(p.clientName):''}</option>`).join('');
-  document.getElementById('quotProjectId').innerHTML=projOpts;
-  document.getElementById('payProjectSelect').innerHTML=projOpts;
-  document.getElementById('profitProjectSelect').innerHTML=projOpts;
-
-  document.getElementById('salesTable').innerHTML=salesTable();
-  renderMaterials(); renderCosts(); renderQuotation(); renderPaymentsPage(); renderProfitPage();
-}
-
-function projectTable(items,selectable){
-  if(!items.length)return '<div class="empty">Belum ada data proyek.</div>';
-  return '<div class="tablewrap"><table><thead><tr><th>Nama Proyek</th><th>Klien</th><th>Bahan</th><th>Biaya RAB</th><th>Markup</th><th></th></tr></thead><tbody>'+items.map(p=>{
-    const count=DATA.materials.filter(m=>m.projectId===p.projectId).length; const cost=DATA.costs.filter(c=>c.projectId===p.projectId).length;
-    return `<tr><td><strong>${esc(p.projectName)}</strong><br><span class="muted">${p.projectDate?new Date(p.projectDate).toLocaleDateString('id-ID'):'-'}</span></td><td>${esc(p.clientName||'-')}</td><td>${count} item</td><td>${cost} item</td><td>${Number(p.markupPercent??30)}%</td><td class="right">${selectable?`<button class="btn secondary" onclick="selectProject('${p.projectId}')">Kelola</button>`:`<span class="tag">Aktif</span>`}</td></tr>`;
-  }).join('')+'</tbody></table></div>';
-}
-
-function selectProject(id){
-  selectedProjectId=id;
-  document.getElementById('quotProjectId').value=id;
-  document.getElementById('payProjectSelect').value=id;
-  document.getElementById('profitProjectSelect').value=id;
-  const p=DATA.projects.find(x=>x.projectId===id);
-  const mVal = p?Number(p.markupPercent??30):30;
-  document.getElementById('quotMarkup').value=mVal;
-  renderMaterials(); renderCosts(); renderQuotation(); renderPaymentsPage(); renderProfitPage();
-  document.getElementById('materialsPanel').scrollIntoView({behavior:'smooth',block:'start'});
-}
-
-function renderMaterials(){
-  const p=DATA.projects.find(x=>x.projectId===selectedProjectId);
-  const form=document.getElementById('materialForm');
-  form.classList.toggle('hidden',!p);
-  document.getElementById('materialTitle').textContent=p?'Bahan: '+p.projectName:'Kebutuhan Bahan';
-  const items=DATA.materials.filter(m=>m.projectId===selectedProjectId);
-  document.getElementById('materialCount').textContent=items.length+' ITEM';
-  if(!p){document.getElementById('materialsTable').className='empty';document.getElementById('materialsTable').textContent='Pilih proyek untuk menampilkan kebutuhan bahan.';return}
-  document.getElementById('materialsTable').className='tablewrap';
-  document.getElementById('materialsTable').innerHTML=items.length?'<table><thead><tr><th>Bahan</th><th>Jumlah</th><th>Harga / Unit</th><th class="right">Total</th><th></th></tr></thead><tbody>'+items.map(m=>`<tr><td><strong>${esc(m.name)}</strong></td><td>${m.quantity} ${esc(m.unit)}</td><td class="money">${money(m.unitPrice)}</td><td class="right money">${money(m.quantity*m.unitPrice)}</td><td class="right"><button class="btn danger" onclick="removeMaterial('${m.materialId}')">Hapus</button></td></tr>`).join('')+'</tbody></table>': '<div class="empty">Belum ada bahan untuk proyek ini.</div>';
-}
-
-function renderCosts(){
-  const p=DATA.projects.find(x=>x.projectId===selectedProjectId),form=document.getElementById('costForm');form.classList.toggle('hidden',!p);
-  document.getElementById('costTitle').textContent=p?'Biaya RAB: '+p.projectName:'Biaya Jasa & Operasional (Estimasi RAB)';
-  const items=DATA.costs.filter(c=>c.projectId===selectedProjectId);document.getElementById('costCount').textContent=items.length+' ITEM';
-  if(!p){document.getElementById('costsTable').className='empty';document.getElementById('costsTable').textContent='Pilih proyek untuk mengelola biaya tambahan.';return}
-  const labels={labor:'Tenaga Kerja',transport:'Transportasi',installation:'Pemasangan',other:'Lainnya'};
-  document.getElementById('costsTable').className='tablewrap';
-  document.getElementById('costsTable').innerHTML=items.length?'<table><thead><tr><th>Kategori</th><th>Keterangan</th><th class="right">Nominal</th><th></th></tr></thead><tbody>'+items.map(c=>`<tr><td><span class="tag">${labels[c.category]||c.category}</span></td><td>${esc(c.name)}</td><td class="right money">${money(c.amount)}</td><td class="right"><button class="btn danger" onclick="removeCost('${c.costId}')">Hapus</button></td></tr>`).join('')+'</tbody></table>':'<div class="empty">Belum ada biaya tambahan untuk proyek ini.</div>';
-}
-
-document.getElementById('projectForm').addEventListener('submit',e=>{
-  e.preventDefault();const f=e.target;const d=Object.fromEntries(new FormData(f).entries());
-  callServer('createProject',d,()=>{f.reset();toast('Proyek berhasil dibuat.');refresh();},f.querySelector('button'));
-});
-document.getElementById('materialForm').addEventListener('submit',e=>{
-  e.preventDefault();const f=e.target;const d=Object.fromEntries(new FormData(f).entries());d.projectId=selectedProjectId;
-  callServer('addMaterial',d,()=>{f.reset();f.querySelector('[name=unit]').value='lembar';toast('Bahan berhasil ditambahkan.');refresh();},f.querySelector('button'));
-});
-document.getElementById('costForm').addEventListener('submit',e=>{
-  e.preventDefault();const f=e.target,d=Object.fromEntries(new FormData(f).entries());d.projectId=selectedProjectId;
-  callServer('addCost',d,()=>{f.reset();toast('Biaya RAB berhasil ditambahkan.');refresh();},f.querySelector('button'));
-});
-
-function removeMaterial(id){if(!confirm('Hapus bahan ini dari proyek?'))return;callServer('deleteMaterial',{materialId:id},()=>{toast('Bahan dihapus.');refresh();})}
-function removeCost(id){if(!confirm('Hapus biaya ini?'))return;callServer('deleteCost',{costId:id},()=>{toast('Biaya dihapus.');refresh();})}
-
-document.getElementById('quotProjectId').addEventListener('change',e=>{selectedProjectId=e.target.value;const p=DATA.projects.find(x=>x.projectId===selectedProjectId);document.getElementById('quotMarkup').value=p?Number(p.markupPercent??30):30;renderQuotation()});
-document.getElementById('quotMarkup').addEventListener('input',renderQuotation);
-
-function currentTotals(id){
- const materials=DATA.materials.filter(m=>m.projectId===id),costs=DATA.costs.filter(c=>c.projectId===id);
- const material=materials.reduce((s,m)=>s+m.quantity*m.unitPrice,0),parts={labor:0,transport:0,installation:0,other:0};
- costs.forEach(c=>{if(parts[c.category]!==undefined)parts[c.category]+=c.amount});
- return {materials,material,costs,parts,subtotal:material+parts.labor+parts.transport+parts.installation+parts.other};
-}
-
-function renderQuotation(){
-  const id=document.getElementById('quotProjectId').value||selectedProjectId;
-  if(document.getElementById('quotProjectId').value!==id && id) document.getElementById('quotProjectId').value=id;
-  const p=DATA.projects.find(x=>x.projectId===id), t=currentTotals(id);
-  const box=document.getElementById('quotPreviewBox');
-  const printBtn=document.getElementById('printPdfBtn');
-
-  if(!p||t.subtotal<=0){
-    box.innerHTML='<div class="empty">Pilih proyek yang memiliki bahan atau biaya untuk melihat pratinjau penawaran profesional AMARA LIVING.</div>';
-    if(printBtn) printBtn.disabled=true;
-    return;
-  }
-  if(printBtn) printBtn.disabled=false;
-
-  const mk=Math.max(0,Number(document.getElementById('quotMarkup').value)||30);
-  const markupAmt=t.subtotal*mk/100, grand=t.subtotal+markupAmt;
-  const labels={labor:'Tenaga Kerja',transport:'Transportasi',installation:'Pemasangan',other:'Lainnya'};
-
-  box.innerHTML=`
-    <div class="inv-head">
-      <div style="display:flex;align-items:center;gap:12px;">
-        <div class="mark" style="width:46px;height:46px;font-size:18px;">AL</div>
         <div>
-          <div class="inv-title">AMARA LIVING</div>
-          <div class="muted" style="font-weight:600;">Interior Design & Build Contractor</div>
-          <div style="margin-top:4px;font-size:11px;color:#657487;">Bali, Indonesia · info@amaraliving.com</div>
+          <h1 class="text-xl font-bold tracking-tight">KAYANA APPS - Master Produk & Proyek</h1>
+          <p class="text-xs text-indigo-200">Database Produk, Estimasi Penawaran & Manajemen Multi-Proyek</p>
         </div>
       </div>
-      <div style="text-align:right">
-        <strong style="font-size:15px;color:var(--blue);letter-spacing:.5px;">SURAT PENAWARAN HARGA</strong>
-        <div style="margin-top:4px;font-size:12px;">Tanggal: ${new Date().toLocaleDateString('id-ID')}</div>
-        <div style="font-size:12px;">Kepada Yth: <strong>${esc(p.clientName||'Klien Amara Living')}</strong></div>
-        <div style="font-size:12px;">Proyek: <strong>${esc(p.projectName)}</strong></div>
+      <div class="flex flex-wrap items-center justify-center gap-2">
+        <button onclick="fetchFromGoogleSheets(true)" class="bg-indigo-500 hover:bg-indigo-400 text-white text-sm font-medium px-3 py-2 rounded-lg transition flex items-center gap-2 shadow-sm border border-indigo-400" title="Tarik data terbaru dari Google Sheets">
+          <i class="fa-solid fa-arrows-rotate"></i> Sync
+        </button>
+        <button onclick="openDbConfigModal()" class="bg-slate-800 hover:bg-slate-700 text-white text-sm font-medium px-3 py-2 rounded-lg transition flex items-center gap-2 shadow-sm" title="Atur URL Google Apps Script">
+          <i class="fa-solid fa-database"></i> Setup DB
+        </button>
+        <button onclick="exportSingleProjectCSV()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium px-3 py-2 rounded-lg transition flex items-center gap-2 shadow-sm border border-indigo-500">
+          <i class="fa-solid fa-file-export"></i> Ekspor Proyek
+        </button>
+        <button onclick="exportAllProjectsCSV()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium px-3 py-2 rounded-lg transition flex items-center gap-2 shadow-sm">
+          <i class="fa-solid fa-file-excel"></i> Ekspor CSV
+        </button>
+        <button onclick="exportFullBackup()" class="bg-emerald-700 hover:bg-emerald-600 text-white text-sm font-medium px-3 py-2 rounded-lg transition flex items-center gap-2 shadow-sm">
+          <i class="fa-solid fa-shield-halved"></i> Backup
+        </button>
+        <button onclick="document.getElementById('importFile').click()" class="bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium px-3 py-2 rounded-lg transition flex items-center gap-2 shadow-sm">
+          <i class="fa-solid fa-file-import"></i> Import
+        </button>
+        <input id="importFile" type="file" accept=".json,application/json" class="hidden" onchange="importProjectFile(event)">
       </div>
     </div>
-    
-    <div style="font-weight:700;margin-bottom:8px;font-size:14px;">1. Rincian Material / Bahan</div>
-    <div class="tablewrap"><table><thead><tr><th>Nama Bahan</th><th>Volume</th><th class="right">Harga Satuan</th><th class="right">Total Harga</th></tr></thead>
-    <tbody>${t.materials.map(m=>`<tr><td>${esc(m.name)}</td><td>${m.quantity} ${esc(m.unit)}</td><td class="right money">${money(m.unitPrice)}</td><td class="right money">${money(m.quantity*m.unitPrice)}</td></tr>`).join('')}</tbody></table></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-2 text-xs text-indigo-100 flex items-center justify-between gap-2">
+      <span id="dbConnectionBadge" class="text-indigo-200"><i class="fa-solid fa-link-slash"></i> Google Sheet belum terhubung</span>
+      <span id="saveStatus" role="status"><i class="fa-solid fa-cloud-arrow-up"></i> Memuat data...</span>
+    </div>
+  </header>
 
-    <div style="font-weight:700;margin:18px 0 8px;font-size:14px;">2. Rincian Jasa & Operasional</div>
-    <div class="tablewrap"><table><thead><tr><th>Kategori</th><th>Keterangan</th><th class="right">Nominal</th></tr></thead>
-    <tbody>${t.costs.map(c=>`<tr><td><span class="tag">${labels[c.category]||c.category}</span></td><td>${esc(c.name)}</td><td class="right money">${money(c.amount)}</td></tr>`).join('')}</tbody></table></div>
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow w-full space-y-6">
 
-    <div style="margin-top:20px;border-top:1px solid var(--line);padding-top:14px;display:flex;justify-content:flex-end;">
-      <div style="width:280px;">
-        <div class="totalrow"><span>Subtotal Modal</span><strong class="money">${money(t.subtotal)}</strong></div>
-        <div class="totalrow"><span>Markup (${mk}%)</span><strong class="money">${money(markupAmt)}</strong></div>
-        <div class="totalrow grand"><span>Total Penawaran</span><strong class="money">${money(grand)}</strong></div>
+    <!-- Section Global Summary & Project Selector -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <!-- Selector Proyek -->
+      <div class="md:col-span-1 bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+        <div>
+          <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Pilih Proyek Aktif</label>
+          <select id="projectSelect" onchange="switchProject(this.value)" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm font-semibold text-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          </select>
+        </div>
+        <div class="flex gap-2 mt-4">
+          <button onclick="openNewProjectModal()" class="flex-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold py-2 rounded-lg transition border border-indigo-200 flex items-center justify-center gap-1">
+            <i class="fa-solid fa-plus"></i> Proyek Baru
+          </button>
+          <button onclick="deleteCurrentProject()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-semibold px-3 py-2 rounded-lg transition border border-rose-200" title="Hapus Proyek Ini">
+            <i class="fa-solid fa-trash-can"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Stat Cards Global -->
+      <div class="md:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
+          <div class="w-12 h-12 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-xl shrink-0">
+            <i class="fa-solid fa-calculator"></i>
+          </div>
+          <div>
+            <p class="text-xs font-medium text-slate-500">Total HPP Proyek Ini</p>
+            <h3 id="statHpp" class="text-lg font-bold text-slate-800">Rp 0</h3>
+          </div>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
+          <div class="w-12 h-12 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-xl shrink-0">
+            <i class="fa-solid fa-chart-line"></i>
+          </div>
+          <div>
+            <p class="text-xs font-medium text-slate-500">Margin Proyek Ini</p>
+            <h3 id="statProfit" class="text-lg font-bold text-slate-800">Rp 0</h3>
+          </div>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4 border-l-4 border-l-indigo-600">
+          <div class="w-12 h-12 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl shrink-0">
+            <i class="fa-solid fa-wallet"></i>
+          </div>
+          <div>
+            <p class="text-xs font-medium text-slate-500">Total Anggaran / Penawaran</p>
+            <h3 id="statTotal" class="text-xl font-extrabold text-indigo-700">Rp 0</h3>
+          </div>
+        </div>
       </div>
     </div>
-    <div style="margin-top:25px;font-size:11px;color:var(--muted);border-top:1px dashed var(--line);padding-top:10px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;">
-      <span>Penawaran ini berlaku selama 14 hari sejak tanggal diterbitkan.</span>
-      <strong>Hormat Kami, AMARA LIVING</strong>
+
+    <!-- Layout Dua Kolom: Kebutuhan Proyek & Master Database -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+      <!-- Kolom Kiri: Modul Kalkulasi Proyek Aktif -->
+      <section class="lg:col-span-7 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+        <div class="p-5 border-b border-slate-100 bg-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <span class="text-xs font-semibold px-2.5 py-0.5 rounded bg-indigo-100 text-indigo-800 uppercase tracking-wider">Modul Proyek</span>
+            <h2 id="currentProjectTitle" class="text-lg font-bold text-slate-800 mt-1">Detail Proyek</h2>
+          </div>
+          <div class="bg-white p-2.5 rounded-lg border border-slate-200 shadow-xs flex items-center gap-3">
+            <span class="text-xs font-bold text-slate-600 shrink-0">Set Margin:</span>
+            <input type="range" id="marginRange" min="0" max="100" value="15" oninput="updateMarginFromRange(this.value)" class="w-24 accent-indigo-600 cursor-pointer">
+            <div class="flex items-center gap-1">
+              <input type="number" id="marginInput" min="0" max="500" value="15" oninput="updateMarginFromInput(this.value)" class="w-16 bg-slate-50 border border-slate-300 text-center rounded text-sm font-bold text-indigo-700 py-1 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+              <span class="text-xs font-bold text-slate-600">%</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-5 space-y-4">
+          <div class="bg-slate-50 p-3.5 rounded-lg border border-slate-200 flex flex-col sm:flex-row gap-3 items-end">
+            <div class="flex-grow w-full">
+              <label class="block text-xs font-medium text-slate-600 mb-1">Pilih Produk dari Master</label>
+              <select id="selectProduct" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <option value="">-- Pilih Barang --</option>
+              </select>
+            </div>
+            <div class="w-full sm:w-28">
+              <label class="block text-xs font-medium text-slate-600 mb-1">Jumlah (Qty)</label>
+              <input type="number" id="inputQty" min="1" value="1" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+            <button onclick="addItemToProject()" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-lg text-sm transition shrink-0 flex items-center justify-center gap-1">
+              <i class="fa-solid fa-plus"></i> Tambah
+            </button>
+          </div>
+
+          <div class="overflow-x-auto border border-slate-200 rounded-lg">
+            <table class="w-full text-left border-collapse text-sm">
+              <thead class="bg-slate-100 text-slate-600 text-xs uppercase tracking-wider border-b border-slate-200">
+                <tr>
+                  <th class="py-2.5 px-3">Produk</th>
+                  <th class="py-2.5 px-3 text-right">Harga Satuan</th>
+                  <th class="py-2.5 px-3 text-center">Qty</th>
+                  <th class="py-2.5 px-3 text-right">Subtotal HPP</th>
+                  <th class="py-2.5 px-3 text-center">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="projectItemsTable" class="divide-y divide-slate-200 bg-white">
+              </tbody>
+            </table>
+          </div>
+
+          <div class="bg-indigo-50/50 p-4 rounded-lg border border-indigo-100 space-y-2 text-sm">
+            <div class="flex justify-between text-slate-600">
+              <span>Total Subtotal HPP (Modal Dasar):</span>
+              <span id="projSubtotalHpp" class="font-semibold text-slate-800">Rp 0</span>
+            </div>
+            <div class="flex justify-between text-slate-600">
+              <span>Margin (<span id="projMarginPercentDisplay">15</span>%):</span>
+              <span id="projMarginAmount" class="font-semibold text-emerald-700">Rp 0</span>
+            </div>
+            <div class="border-t border-indigo-200 pt-2 flex justify-between text-base font-bold text-indigo-900">
+              <span>Total Estimasi Anggaran Penawaran:</span>
+              <span id="projGrandTotal" class="text-indigo-700">Rp 0</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Kolom Kanan: Master Database Produk -->
+      <section class="lg:col-span-5 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+        <div class="p-5 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
+          <div>
+            <h2 class="text-base font-bold text-slate-800">Master Database Produk</h2>
+            <p class="text-xs text-slate-500">Kelola master harga satuan barang</p>
+          </div>
+          <button onclick="openProductModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium px-3 py-2 rounded-lg transition flex items-center gap-1">
+            <i class="fa-solid fa-plus"></i> Produk Baru
+          </button>
+        </div>
+
+        <div class="p-4 space-y-3">
+          <div class="relative">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+            <input type="text" id="searchProduct" oninput="renderMasterProducts()" placeholder="Cari nama atau SKU produk..." class="w-full bg-slate-50 border border-slate-200 rounded-lg pl-8 pr-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500">
+          </div>
+
+          <div class="overflow-x-auto border border-slate-200 rounded-lg max-h-[420px] overflow-y-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead class="bg-slate-100 text-slate-600 uppercase tracking-wider sticky top-0 z-10 border-b border-slate-200">
+                <tr>
+                  <th class="py-2 px-3">Kode / Produk</th>
+                  <th class="py-2 px-3 text-right">Harga Satuan</th>
+                  <th class="py-2 px-3 text-center">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="masterProductTable" class="divide-y divide-slate-200 bg-white">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
     </div>
-  `;
-}
+  </main>
 
-function saveQuotMarkup(){
-  const id=document.getElementById('quotProjectId').value||selectedProjectId;
-  if(!id){toast('Pilih proyek terlebih dahulu.');return;}
-  callServer('updateProjectMarkup',{projectId:id,markupPercent:document.getElementById('quotMarkup').value},()=>{toast('Markup berhasil disimpan.');refresh();});
-}
-
-function openPdfModal(){
-  const content = document.getElementById('quotPreviewBox').innerHTML;
-  document.getElementById('pdfModalContent').innerHTML = `<div class="invoice-box" style="border:0;padding:10px;">${content}</div>`;
-  document.getElementById('pdfModal').classList.remove('hidden');
-}
-function closePdfModal(){
-  document.getElementById('pdfModal').classList.add('hidden');
-}
-
-function saveQuotationToHistory(){
-  const id=document.getElementById('quotProjectId').value||selectedProjectId;
-  const p=DATA.projects.find(x=>x.projectId===id);
-  if(!p){toast('Pilih proyek terlebih dahulu.');return;}
-  callServer('checkoutProject',{projectId:id},r=>{
-    toast('Penawaran berhasil disimpan ke Riwayat · '+money(r.grandTotal));
-    refresh(); showPage('sales');
-  },document.getElementById('saveSaleBtn'));
-}
-
-document.getElementById('payProjectSelect').addEventListener('change',e=>{selectedProjectId=e.target.value;renderPaymentsPage()});
-
-function renderPaymentsPage(){
-  const id=document.getElementById('payProjectSelect').value||selectedProjectId;
-  if(document.getElementById('payProjectSelect').value!==id && id) document.getElementById('payProjectSelect').value=id;
-  const p=DATA.projects.find(x=>x.projectId===id);
-  const sale=DATA.sales.find(s=>s.projectId===id);
-  const payments=DATA.payments.filter(pr=>pr.projectId===id);
-
-  let grandTotal = sale ? sale.grandTotal : 0;
-  if(!sale && p){
-    const t = currentTotals(id);
-    const mk = Number(p.markupPercent??30);
-    grandTotal = t.subtotal + (t.subtotal * mk / 100);
-  }
-
-  const paidTotal = payments.reduce((sum,x)=>sum+x.amount,0);
-  const remaining = Math.max(0, grandTotal - paidTotal);
-
-  document.getElementById('payGrandTotal').textContent = money(grandTotal);
-  document.getElementById('payPaidTotal').textContent = money(paidTotal);
-  document.getElementById('payRemaining').textContent = money(remaining);
-
-  const tableEl = document.getElementById('paymentHistoryTable');
-  if(!p){
-    tableEl.innerHTML='<div class="empty">Pilih proyek untuk melihat riwayat pembayaran & piutang.</div>';
-    return;
-  }
-  tableEl.innerHTML = payments.length ? 
-    '<div class="tablewrap"><table><thead><tr><th>Termin</th><th>Tanggal</th><th>Metode</th><th class="right">Jumlah</th><th></th></tr></thead><tbody>'+
-    payments.map(pr=>`<tr><td><strong>${esc(pr.termName)}</strong><br><span class="muted">${esc(pr.notes||'')}</span></td><td>${pr.paymentDate?new Date(pr.paymentDate).toLocaleDateString('id-ID'):'-'}</td><td>${esc(pr.method)}</td><td class="right money">${money(pr.amount)}</td><td class="right"><button class="btn danger" onclick="removePayment('${pr.paymentId}')">Hapus</button></td></tr>`).join('')+
-    '</tbody></table></div>' : 
-    '<div class="empty">Belum ada catatan pembayaran termin untuk proyek ini.</div>';
-}
-
-document.getElementById('paymentForm').addEventListener('submit',e=>{
-  e.preventDefault();
-  const id=document.getElementById('payProjectSelect').value||selectedProjectId;
-  if(!id){toast('Pilih proyek terlebih dahulu.');return;}
-  const f=e.target; const d=Object.fromEntries(new FormData(f).entries());
-  d.projectId=id;
-  callServer('addPayment',d,()=>{f.reset();toast('Pembayaran berhasil direkam.');refresh();},f.querySelector('button'));
-});
-
-function removePayment(id){
-  if(!confirm('Hapus catatan pembayaran ini?'))return;
-  callServer('deletePayment',{paymentId:id},()=>{toast('Pembayaran dihapus.');refresh();});
-}
-
-document.getElementById('profitProjectSelect').addEventListener('change',e=>{selectedProjectId=e.target.value;renderProfitPage()});
-
-function renderProfitPage(){
-  const id=document.getElementById('profitProjectSelect').value||selectedProjectId;
-  if(document.getElementById('profitProjectSelect').value!==id && id) document.getElementById('profitProjectSelect').value=id;
-  const p=DATA.projects.find(x=>x.projectId===id);
-  const container=document.getElementById('profitReportContainer');
-  const actualPanel=document.getElementById('actualCostPanel');
-
-  if(!p){
-    container.innerHTML='<div class="empty">Pilih proyek untuk melihat laporan profitabilitas.</div>';
-    actualPanel.style.display='none';
-    return;
-  }
-  actualPanel.style.display='block';
-
-  const t = currentTotals(id);
-  const estCost = t.subtotal;
-  const mk = Number(p.markupPercent??30);
-  const estRevenue = estCost + (estCost * mk / 100);
-  const estProfit = estRevenue - estCost;
-
-  const actualCosts = DATA.actualCosts.filter(ac=>ac.projectId===id);
-  const totalActualCost = actualCosts.reduce((sum,ac)=>sum+ac.amount,0);
-  const realProfit = estRevenue - totalActualCost;
-  const profitMargin = estRevenue > 0 ? (realProfit / estRevenue) * 100 : 0;
-
-  container.innerHTML=`
-    <div class="grid" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:15px;">
-      <div class="stat"><div class="label">Estimasi Nilai Kontrak</div><div class="value money">${money(estRevenue)}</div><div class="hint">Harga Jual / RAB Total</div></div>
-      <div class="stat"><div class="label">Realisasi Biaya Aktual</div><div class="value money" style="color:var(--red)">${money(totalActualCost)}</div><div class="hint">Pengeluaran riil lapangan</div></div>
-      <div class="stat"><div class="label">Keuntungan Bersih (Real)</div><div class="value money" style="color:var(--green)">${money(realProfit)}</div><div class="hint">Margin: ${profitMargin.toFixed(1)}%</div></div>
+  <footer class="bg-white border-t border-slate-200 mt-auto py-4">
+    <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500">
+      KAYANA APPS &copy; 2026 - Rekapan Data Base Produk & Multi-Proyek (Cloud Sync)
     </div>
-    <div class="tablewrap">
-      <table>
-        <thead><tr><th>Komponen Keuangan</th><th class="right">Estimasi (RAB)</th><th class="right">Realisasi Aktual</th><th class="right">Selisih (Variance)</th></tr></thead>
-        <tbody>
-          <tr><td>Total Modal / Biaya</td><td class="right money">${money(estCost)}</td><td class="right money">${money(totalActualCost)}</td><td class="right money" style="color:${estCost-totalActualCost>=0?'var(--green)':'var(--red)'}">${money(estCost-totalActualCost)}</td></tr>
-          <tr><td><strong>Keuntungan (Profit)</strong></td><td class="right money" style="font-weight:700">${money(estProfit)}</td><td class="right money" style="font-weight:700;color:${realProfit>=0?'var(--green)':'var(--red)'}">${money(realProfit)}</td><td class="right money">${money(realProfit-estProfit)}</td></tr>
-        </tbody>
-      </table>
+  </footer>
+
+  <!-- MODAL: Pengaturan Google Sheets URL -->
+  <div id="dbConfigModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+      <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+        <h3 class="font-bold text-slate-800">Koneksi Database Google Sheets</h3>
+        <button onclick="closeDbConfigModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form onsubmit="saveDbConfig(event)" class="p-5 space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">URL Web App Google Apps Script</label>
+          <input type="url" id="gasUrlInput" required placeholder="https://script.google.com/macros/s/.../exec" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <p class="text-[11px] text-slate-500 mt-1.5">Paste URL dari menu <b>Deploy > Web app</b> di Google Sheets Anda. Gunakan URL yang sama di HP/laptop lain agar data sinkron.</p>
+        </div>
+        <div class="pt-2 flex justify-between items-center gap-2">
+          <button type="button" onclick="pushLocalToSheets()" class="px-3 py-2 bg-amber-50 border border-amber-200 text-amber-700 text-xs font-semibold rounded-lg hover:bg-amber-100" title="Unggah data lokal saat ini ke Google Sheets kosong">
+            <i class="fa-solid fa-cloud-arrow-up"></i> Upload Data Lokal ke Sheet
+          </button>
+          <div class="flex gap-2">
+            <button type="button" onclick="closeDbConfigModal()" class="px-3 py-2 border border-slate-300 text-slate-600 text-xs font-semibold rounded-lg hover:bg-slate-50">Batal</button>
+            <button type="submit" class="px-4 py-2 bg-indigo-600 text-white text-xs font-semibold rounded-lg hover:bg-indigo-700">Simpan & Sync</button>
+          </div>
+        </div>
+      </form>
     </div>
-  `;
+  </div>
 
-  document.getElementById('actualCostTable').innerHTML = actualCosts.length ?
-    '<div class="tablewrap"><table><thead><tr><th>Keterangan Biaya Aktual</th><th class="right">Nominal</th><th></th></tr></thead><tbody>'+
-    actualCosts.map(ac=>`<tr><td>${esc(ac.name)}</td><td class="right money">${money(ac.amount)}</td><td class="right"><button class="btn danger" onclick="removeActualCost('${ac.actualId}')">Hapus</button></td></tr>`).join('')+
-    '</tbody></table></div>' :
-    '<div class="empty">Belum ada catatan biaya aktual di lapangan.</div>';
-}
+  <!-- MODAL: Tambah / Edit Master Produk -->
+  <div id="productModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+      <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+        <h3 id="productModalTitle" class="font-bold text-slate-800">Tambah Produk Baru</h3>
+        <button onclick="closeProductModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="productForm" onsubmit="handleProductSubmit(event)" class="p-5 space-y-4">
+        <input type="hidden" id="prodId">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Kode SKU / Barcode</label>
+          <input type="text" id="prodSku" required placeholder="Contoh: PRD-001" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Produk</label>
+          <input type="text" id="prodName" required placeholder="Nama barang / material" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Harga Satuan (HPP)</label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400">Rp</span>
+            <input type="number" id="prodPrice" min="0" required placeholder="0" class="w-full bg-slate-50 border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          </div>
+        </div>
+        <div class="pt-2 flex justify-end gap-2">
+          <button type="button" onclick="closeProductModal()" class="px-4 py-2 border border-slate-300 text-slate-600 text-xs font-semibold rounded-lg hover:bg-slate-50">Batal</button>
+          <button type="submit" class="px-4 py-2 bg-indigo-600 text-white text-xs font-semibold rounded-lg hover:bg-indigo-700">Simpan Produk</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
-document.getElementById('actualCostForm').addEventListener('submit',e=>{
-  e.preventDefault();
-  const id=document.getElementById('profitProjectSelect').value||selectedProjectId;
-  if(!id){toast('Pilih proyek terlebih dahulu.');return;}
-  const f=e.target; const d=Object.fromEntries(new FormData(f).entries());
-  d.projectId=id;
-  callServer('addActualCost',d,()=>{f.reset();toast('Realisasi biaya berhasil ditambahkan.');refresh();},f.querySelector('button'));
-});
+  <!-- MODAL: Tambah Proyek Baru -->
+  <div id="projectModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-sm overflow-hidden">
+      <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+        <h3 class="font-bold text-slate-800">Buat Proyek Baru</h3>
+        <button onclick="closeProjectModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form onsubmit="handleProjectSubmit(event)" class="p-5 space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Proyek</label>
+          <input type="text" id="newProjectName" required placeholder="Contoh: Pengadaan Apotek B" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Margin Awal (%)</label>
+          <input type="number" id="newProjectMargin" value="15" min="0" max="500" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+        <div class="pt-2 flex justify-end gap-2">
+          <button type="button" onclick="closeProjectModal()" class="px-4 py-2 border border-slate-300 text-slate-600 text-xs font-semibold rounded-lg hover:bg-slate-50">Batal</button>
+          <button type="submit" class="px-4 py-2 bg-indigo-600 text-white text-xs font-semibold rounded-lg hover:bg-indigo-700">Buat Proyek</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
-function removeActualCost(id){
-  if(!confirm('Hapus catatan biaya aktual ini?'))return;
-  callServer('deleteActualCost',{actualId:id},()=>{toast('Biaya aktual dihapus.');refresh();});
-}
+  <!-- JavaScript Logic -->
+  <script>
+    // OPSIONAL: Tempel URL Web App Google Apps Script Anda di sini agar otomatis terhubung di semua device tanpa perlu isi manual di Setup DB
+    const DEFAULT_GAS_URL = 'https://script.google.com/macros/s/AKfycbzhM9VE5C2Gm6t0IriiWItGSuPIMHpae_cn1u0BiDXfWsm8wIseigOxVbvGnp2qAAKA/exec';
 
-function salesTable(){
-  if(!DATA.sales.length)return '<div class="empty">Belum ada riwayat penawaran tersimpan.</div>';
-  return '<div class="tablewrap"><table><thead><tr><th>Tanggal</th><th>Proyek</th><th>Material</th><th>Biaya Lain</th><th>Markup</th><th class="right">Harga Penawaran</th></tr></thead><tbody>'+[...DATA.sales].reverse().map(s=>`<tr><td>${s.saleDate?new Date(s.saleDate).toLocaleDateString('id-ID'):'-'}</td><td><strong>${esc(s.projectName)}</strong><br><span class="muted">${esc(s.clientName||'')}</span></td><td class="money">${money(s.materialTotal)}</td><td class="money">${money(s.subtotal-s.materialTotal)}</td><td>${s.markupPercent}%<br><span class="muted">${money(s.markupAmount)}</span></td><td class="right money"><strong>${money(s.grandTotal)}</strong></td></tr>`).join('')+'</tbody></table></div>';
-}
+    const defaultMasterProducts = [
+      { id: '1', sku: 'PRD-001', name: 'o.b. ProComfort Normal (isi 16)', price: 45000 },
+      { id: '2', sku: 'PRD-002', name: 'o.b. ProComfort Super (isi 16)', price: 48000 },
+      { id: '3', sku: 'PRD-003', name: 'o.b. ProComfort Mini (isi 8)', price: 28000 },
+      { id: '4', sku: 'PRD-004', name: 'Rak Display Acrylic Apotek', price: 150000 },
+      { id: '5', sku: 'PRD-005', name: 'Sticker Label Harga Custom', price: 1500 }
+    ];
 
-refresh();
-</script>
+    const defaultProjects = [
+      {
+        id: 'proj-1',
+        name: 'Proyek Apotek Kuta Pariwisata',
+        marginPercent: 20,
+        items: [
+          { productId: '1', qty: 50 },
+          { productId: '2', qty: 30 },
+          { productId: '4', qty: 2 }
+        ]
+      },
+      {
+        id: 'proj-2',
+        name: 'Pengadaan Apotek Seminyak',
+        marginPercent: 15,
+        items: [
+          { productId: '1', qty: 100 },
+          { productId: '3', qty: 40 }
+        ]
+      }
+    ];
+
+    function getGasUrl() {
+      return localStorage.getItem('kayana_gas_url') || DEFAULT_GAS_URL;
+    }
+
+    function readStoredJSON(key, fallback) {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : fallback;
+      } catch (error) {
+        return fallback;
+      }
+    }
+
+    let masterProducts = readStoredJSON('kayana_products', defaultMasterProducts);
+    let projects = readStoredJSON('kayana_projects', defaultProjects);
+    if (!Array.isArray(masterProducts)) masterProducts = defaultMasterProducts;
+    if (!Array.isArray(projects) || projects.length === 0) projects = defaultProjects;
+    projects = projects.map(p => ({ ...p, items: Array.isArray(p.items) ? p.items : [], marginPercent: Number(p.marginPercent) || 0 }));
+    let activeProjectId = localStorage.getItem('kayana_active_project') || (projects[0] ? projects[0].id : '');
+    if (!projects.some(p => p.id === activeProjectId)) activeProjectId = projects[0]?.id || '';
+
+    let syncTimeout = null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      updateConnectionBadge();
+      renderAllUI();
+      if (getGasUrl()) {
+        await fetchFromGoogleSheets(false);
+      } else {
+        setSaveStatus('Mode Lokal (Klik "Setup DB" untuk hubungkan Google Sheets)', true);
+      }
+    });
+
+    function renderAllUI() {
+      renderProjectSelector();
+      renderMasterProducts();
+      renderProductDropdown();
+      renderActiveProject();
+    }
+
+    function updateConnectionBadge() {
+      const badge = document.getElementById('dbConnectionBadge');
+      if (getGasUrl()) {
+        badge.innerHTML = '<i class="fa-solid fa-cloud text-emerald-300"></i> Terhubung ke Google Sheets';
+        badge.className = 'text-emerald-200 font-medium';
+      } else {
+        badge.innerHTML = '<i class="fa-solid fa-link-slash text-amber-300"></i> Google Sheet belum terhubung';
+        badge.className = 'text-amber-200';
+      }
+    }
+
+    function setSaveStatus(message, isError = false, isLoading = false) {
+      const el = document.getElementById('saveStatus');
+      if (!el) return;
+      if (isLoading) {
+        el.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${message}`;
+        el.className = 'text-xs text-sky-200';
+      } else if (isError) {
+        el.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> ${message}`;
+        el.className = 'text-xs text-amber-200';
+      } else {
+        el.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${message}`;
+        el.className = 'text-xs text-emerald-200';
+      }
+    }
+
+    // --- GOOGLE SHEETS CLOUD SYNC ---
+    async function fetchFromGoogleSheets(showAlert = false) {
+      const url = getGasUrl();
+      if (!url) {
+        if (showAlert) openDbConfigModal();
+        return;
+      }
+
+      setSaveStatus('Menarik data dari Google Sheets...', false, true);
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (data.status === 'success') {
+          // Jika sheet masih benar-benar kosong, pertahankan data lokal agar tidak tertimpa kosong
+          if (data.masterProducts.length === 0 && data.projects.length === 0) {
+            setSaveStatus('Sheet kosong. Klik Setup DB > Upload Data Lokal ke Sheet', true);
+            if (showAlert) alert('Google Sheet terhubung, namun tabel masih kosong. Gunakan tombol "Upload Data Lokal ke Sheet" di menu Setup DB untuk mengisi data awal.');
+            return;
+          }
+
+          masterProducts = data.masterProducts;
+          projects = data.projects.length > 0 ? data.projects : projects;
+          if (!projects.some(p => p.id === activeProjectId)) {
+            activeProjectId = projects[0]?.id || '';
+          }
+
+          saveLocalOnly();
+          renderAllUI();
+          setSaveStatus('Tersinkron dengan Google Sheets (' + new Date().toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'}) + ')');
+          if (showAlert) alert('Sinkronisasi berhasil! Data terbaru dari Google Sheets telah dimuat.');
+        } else {
+          throw new Error(data.message || 'Gagal membaca data');
+        }
+      } catch (err) {
+        console.error(err);
+        setSaveStatus('Gagal sinkronisasi (Menampilkan cache lokal)', true);
+        if (showAlert) alert('Gagal terhubung ke Google Sheets. Pastikan URL Web App benar dan akses diatur ke "Anyone".');
+      }
+    }
+
+    function saveLocalOnly() {
+      try {
+        localStorage.setItem('kayana_products', JSON.stringify(masterProducts));
+        localStorage.setItem('kayana_projects', JSON.stringify(projects));
+        localStorage.setItem('kayana_active_project', activeProjectId);
+      } catch (e) {
+        console.warn(e);
+      }
+    }
+
+    function saveData() {
+      saveLocalOnly();
+      const url = getGasUrl();
+      if (!url) {
+        setSaveStatus('Tersimpan lokal (Belum terhubung ke Google Sheets)', true);
+        return true;
+      }
+
+      setSaveStatus('Menyimpan ke Google Sheets...', false, true);
+      clearTimeout(syncTimeout);
+      syncTimeout = setTimeout(() => {
+        pushToCloud(url);
+      }, 800);
+      return true;
+    }
+
+    async function pushToCloud(url) {
+      try {
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ masterProducts, projects })
+        });
+        const result = await res.json();
+        if (result.status === 'success') {
+          setSaveStatus('Tersimpan di Google Sheets (' + new Date().toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'}) + ')');
+        } else {
+          throw new Error(result.message);
+        }
+      } catch (err) {
+        console.error('Cloud save error:', err);
+        setSaveStatus('Gagal simpan ke Cloud! Cek koneksi / Setup DB', true);
+      }
+    }
+
+    // --- DB CONFIG MODAL ---
+    function openDbConfigModal() {
+      document.getElementById('gasUrlInput').value = getGasUrl();
+      document.getElementById('dbConfigModal').classList.remove('hidden');
+    }
+
+    function closeDbConfigModal() {
+      document.getElementById('dbConfigModal').classList.add('hidden');
+    }
+
+    async function saveDbConfig(e) {
+      e.preventDefault();
+      const url = document.getElementById('gasUrlInput').value.trim();
+      localStorage.setItem('kayana_gas_url', url);
+      updateConnectionBadge();
+      closeDbConfigModal();
+      await fetchFromGoogleSheets(true);
+    }
+
+    async function pushLocalToSheets() {
+      const url = document.getElementById('gasUrlInput').value.trim();
+      if (!url) return alert('Masukkan URL Web App terlebih dahulu!');
+      if (!confirm('Data di Google Sheet akan ditimpa dengan data yang ada di layar ini sekarang. Lanjutkan?')) return;
+      
+      localStorage.setItem('kayana_gas_url', url);
+      updateConnectionBadge();
+      closeDbConfigModal();
+      setSaveStatus('Mengunggah data ke Google Sheets...', false, true);
+      await pushToCloud(url);
+      alert('Data berhasil diunggah ke Google Sheets!');
+    }
+
+    // --- EXPORT & IMPORT ---
+    function downloadJSON(data, fileName) {
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    function dateStamp() {
+      const d = new Date();
+      return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+    }
+
+    function exportFullBackup() {
+      const backup = { format: 'kayana-app-backup', version: 1, exportedAt: new Date().toISOString(), masterProducts, projects, activeProjectId };
+      downloadJSON(backup, `Kayana_Backup_${dateStamp()}.json`);
+    }
+
+    function importProjectFile(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const data = JSON.parse(reader.result);
+          if (data.format === 'kayana-app-backup' && Array.isArray(data.masterProducts) && Array.isArray(data.projects)) {
+            if (!confirm(`Pulihkan backup berisi ${data.projects.length} proyek dan ${data.masterProducts.length} produk? Data saat ini (termasuk di Google Sheets) akan diganti.`)) return;
+            masterProducts = data.masterProducts;
+            projects = data.projects.map(p => ({ ...p, items: Array.isArray(p.items) ? p.items : [] }));
+            activeProjectId = projects.some(p => p.id === data.activeProjectId) ? data.activeProjectId : (projects[0]?.id || '');
+          } else {
+            throw new Error('Format file tidak dikenali.');
+          }
+          saveData();
+          renderAllUI();
+          alert('Import berhasil & sedang disinkronkan ke Google Sheets.');
+        } catch (error) {
+          alert('Import gagal: ' + error.message);
+        } finally {
+          event.target.value = '';
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function formatRp(amount) {
+      return 'Rp ' + Number(amount || 0).toLocaleString('id-ID');
+    }
+
+    // --- PROJECT MANAGEMENT ---
+    function renderProjectSelector() {
+      const select = document.getElementById('projectSelect');
+      select.innerHTML = '';
+      projects.forEach(p => {
+        const option = document.createElement('option');
+        option.value = p.id;
+        option.textContent = p.name;
+        if (p.id === activeProjectId) option.selected = true;
+        select.appendChild(option);
+      });
+    }
+
+    function switchProject(id) {
+      activeProjectId = id;
+      saveLocalOnly();
+      renderActiveProject();
+    }
+
+    function openNewProjectModal() {
+      document.getElementById('newProjectName').value = '';
+      document.getElementById('newProjectMargin').value = '15';
+      document.getElementById('projectModal').classList.remove('hidden');
+    }
+
+    function closeProjectModal() {
+      document.getElementById('projectModal').classList.add('hidden');
+    }
+
+    function handleProjectSubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById('newProjectName').value.trim();
+      const margin = parseFloat(document.getElementById('newProjectMargin').value) || 0;
+      
+      const newProj = {
+        id: 'proj-' + Date.now(),
+        name: name,
+        marginPercent: margin,
+        items: []
+      };
+
+      projects.push(newProj);
+      activeProjectId = newProj.id;
+      saveData();
+      closeProjectModal();
+      renderProjectSelector();
+      renderActiveProject();
+    }
+
+    function deleteCurrentProject() {
+      if (projects.length <= 1) {
+        alert('Minimal harus tersisa 1 proyek!');
+        return;
+      }
+      const proj = projects.find(p => p.id === activeProjectId);
+      if (confirm(`Apakah Anda yakin ingin menghapus proyek "${proj.name}"?`)) {
+        projects = projects.filter(p => p.id !== activeProjectId);
+        activeProjectId = projects[0].id;
+        saveData();
+        renderProjectSelector();
+        renderActiveProject();
+      }
+    }
+
+    // --- ACTIVE PROJECT CALCULATION & RENDER ---
+    function renderActiveProject() {
+      const proj = projects.find(p => p.id === activeProjectId);
+      if (!proj) return;
+
+      document.getElementById('currentProjectTitle').textContent = proj.name;
+      document.getElementById('marginRange').value = proj.marginPercent;
+      document.getElementById('marginInput').value = proj.marginPercent;
+      document.getElementById('projMarginPercentDisplay').textContent = proj.marginPercent;
+
+      const tbody = document.getElementById('projectItemsTable');
+      tbody.innerHTML = '';
+
+      let subtotalHpp = 0;
+
+      proj.items.forEach((item, index) => {
+        const product = masterProducts.find(m => m.id === item.productId);
+        const name = product ? product.name : 'Produk Dihapus';
+        const price = product ? product.price : 0;
+        const itemSubtotal = price * item.qty;
+        subtotalHpp += itemSubtotal;
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50 transition';
+        tr.innerHTML = `
+          <td class="py-2.5 px-3 font-medium text-slate-800">${name}</td>
+          <td class="py-2.5 px-3 text-right text-slate-600">${formatRp(price)}</td>
+          <td class="py-2.5 px-3 text-center">
+            <input type="number" min="1" value="${item.qty}" onchange="updateItemQty(${index}, this.value)" class="w-16 text-center border border-slate-300 rounded px-1 py-0.5 text-xs font-semibold">
+          </td>
+          <td class="py-2.5 px-3 text-right font-semibold text-slate-800">${formatRp(itemSubtotal)}</td>
+          <td class="py-2.5 px-3 text-center">
+            <button onclick="removeItemFromProject(${index})" class="text-rose-500 hover:text-rose-700 font-medium text-xs px-2 py-1 rounded hover:bg-rose-50"><i class="fa-solid fa-trash-can"></i></button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      if (proj.items.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-slate-400 text-xs">Belum ada kebutuhan produk di proyek ini.</td></tr>`;
+      }
+
+      const marginAmount = subtotalHpp * (proj.marginPercent / 100);
+      const grandTotal = subtotalHpp + marginAmount;
+
+      document.getElementById('projSubtotalHpp').textContent = formatRp(subtotalHpp);
+      document.getElementById('projMarginAmount').textContent = formatRp(marginAmount);
+      document.getElementById('projGrandTotal').textContent = formatRp(grandTotal);
+
+      document.getElementById('statHpp').textContent = formatRp(subtotalHpp);
+      document.getElementById('statProfit').textContent = formatRp(marginAmount);
+      document.getElementById('statTotal').textContent = formatRp(grandTotal);
+    }
+
+    function updateMarginFromRange(val) {
+      document.getElementById('marginInput').value = val;
+      updateProjectMargin(parseFloat(val) || 0);
+    }
+
+    function updateMarginFromInput(val) {
+      document.getElementById('marginRange').value = val;
+      updateProjectMargin(parseFloat(val) || 0);
+    }
+
+    function updateProjectMargin(margin) {
+      const proj = projects.find(p => p.id === activeProjectId);
+      if (proj) {
+        proj.marginPercent = margin;
+        saveData();
+        renderActiveProject();
+      }
+    }
+
+    function addItemToProject() {
+      const productId = document.getElementById('selectProduct').value;
+      const qty = parseInt(document.getElementById('inputQty').value) || 1;
+
+      if (!productId) {
+        alert('Silakan pilih produk terlebih dahulu!');
+        return;
+      }
+
+      const proj = projects.find(p => p.id === activeProjectId);
+      if (proj) {
+        const existingItem = proj.items.find(i => i.productId === productId);
+        if (existingItem) {
+          existingItem.qty += qty;
+        } else {
+          proj.items.push({ productId, qty });
+        }
+        saveData();
+        renderActiveProject();
+      }
+    }
+
+    function updateItemQty(index, newQty) {
+      const proj = projects.find(p => p.id === activeProjectId);
+      if (proj && proj.items[index]) {
+        proj.items[index].qty = Math.max(1, parseInt(newQty) || 1);
+        saveData();
+        renderActiveProject();
+      }
+    }
+
+    function removeItemFromProject(index) {
+      const proj = projects.find(p => p.id === activeProjectId);
+      if (proj && proj.items[index]) {
+        proj.items.splice(index, 1);
+        saveData();
+        renderActiveProject();
+      }
+    }
+
+    // --- MASTER PRODUCT MANAGEMENT ---
+    function renderMasterProducts() {
+      const query = document.getElementById('searchProduct').value.toLowerCase();
+      const tbody = document.getElementById('masterProductTable');
+      tbody.innerHTML = '';
+
+      const filtered = masterProducts.filter(p => 
+        p.name.toLowerCase().includes(query) || p.sku.toLowerCase().includes(query)
+      );
+
+      filtered.forEach(p => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50 transition';
+        tr.innerHTML = `
+          <td class="py-2 px-3">
+            <span class="text-[10px] font-mono text-slate-400 block">${p.sku}</span>
+            <span class="font-medium text-slate-800">${p.name}</span>
+          </td>
+          <td class="py-2 px-3 text-right font-semibold text-slate-700">${formatRp(p.price)}</td>
+          <td class="py-2 px-3 text-center">
+            <div class="flex items-center justify-center gap-1">
+              <button onclick="editProduct('${p.id}')" class="text-indigo-600 hover:text-indigo-800 p-1"><i class="fa-solid fa-pen"></i></button>
+              <button onclick="deleteProduct('${p.id}')" class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash"></i></button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderProductDropdown() {
+      const select = document.getElementById('selectProduct');
+      select.innerHTML = '<option value="">-- Pilih Barang --</option>';
+      masterProducts.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = `[${p.sku}] ${p.name} - (${formatRp(p.price)})`;
+        select.appendChild(opt);
+      });
+    }
+
+    function openProductModal(id = null) {
+      document.getElementById('productForm').reset();
+      document.getElementById('prodId').value = '';
+      document.getElementById('productModalTitle').textContent = 'Tambah Produk Baru';
+
+      if (id) {
+        const prod = masterProducts.find(p => p.id === id);
+        if (prod) {
+          document.getElementById('prodId').value = prod.id;
+          document.getElementById('prodSku').value = prod.sku;
+          document.getElementById('prodName').value = prod.name;
+          document.getElementById('prodPrice').value = prod.price;
+          document.getElementById('productModalTitle').textContent = 'Edit Master Produk';
+        }
+      }
+      document.getElementById('productModal').classList.remove('hidden');
+    }
+
+    function closeProductModal() {
+      document.getElementById('productModal').classList.add('hidden');
+    }
+
+    function handleProductSubmit(e) {
+      e.preventDefault();
+      const id = document.getElementById('prodId').value;
+      const sku = document.getElementById('prodSku').value.trim();
+      const name = document.getElementById('prodName').value.trim();
+      const price = parseFloat(document.getElementById('prodPrice').value) || 0;
+
+      if (id) {
+        const index = masterProducts.findIndex(p => p.id === id);
+        if (index !== -1) {
+          masterProducts[index] = { id, sku, name, price };
+        }
+      } else {
+        masterProducts.push({
+          id: String(Date.now()),
+          sku,
+          name,
+          price
+        });
+      }
+
+      saveData();
+      closeProductModal();
+      renderMasterProducts();
+      renderProductDropdown();
+      renderActiveProject();
+    }
+
+    function editProduct(id) {
+      openProductModal(id);
+    }
+
+    function deleteProduct(id) {
+      if (confirm('Hapus produk ini dari master database?')) {
+        masterProducts = masterProducts.filter(p => p.id !== id);
+        saveData();
+        renderMasterProducts();
+        renderProductDropdown();
+        renderActiveProject();
+      }
+    }
+
+    // --- CSV EXPORT FUNCTIONS ---
+    function exportSingleProjectCSV() {
+      const proj = projects.find(p => p.id === activeProjectId);
+      if (!proj) return;
+
+      let csv = `Rekapitulasi Proyek: ${proj.name}\nMargin: ${proj.marginPercent}%\n\nSKU,Nama Produk,Harga Satuan (HPP),Qty,Subtotal HPP\n`;
+
+      let totalHpp = 0;
+      proj.items.forEach(i => {
+        const p = masterProducts.find(m => m.id === i.productId);
+        const name = p ? `"${p.name}"` : 'Produk Dihapus';
+        const price = p ? p.price : 0;
+        const sku = p ? p.sku : '-';
+        const subtotal = price * i.qty;
+        totalHpp += subtotal;
+
+        csv += `${sku},${name},${price},${i.qty},${subtotal}\n`;
+      });
+
+      const marginVal = totalHpp * (proj.marginPercent / 100);
+      const grandTotal = totalHpp + marginVal;
+
+      csv += `\nTotal Subtotal HPP,,,${totalHpp}\nMargin (${proj.marginPercent}%),,,${marginVal}\nTotal Anggaran Penawaran,,,${grandTotal}\n`;
+      downloadCSV(csv, `Rekap_${proj.name.replace(/\s+/g, '_')}.csv`);
+    }
+
+    function exportAllProjectsCSV() {
+      let csv = `Ringkasan Semua Proyek\n\nNama Proyek,Jumlah Jenis Barang,Margin (%),Total HPP,Estimasi Margin (Rp),Total Anggaran Penawaran\n`;
+
+      projects.forEach(proj => {
+        let hpp = 0;
+        proj.items.forEach(i => {
+          const p = masterProducts.find(m => m.id === i.productId);
+          hpp += (p ? p.price : 0) * i.qty;
+        });
+        const marginRp = hpp * (proj.marginPercent / 100);
+        const grand = hpp + marginRp;
+
+        csv += `"${proj.name}",${proj.items.length},${proj.marginPercent}%,${hpp},${marginRp},${grand}\n`;
+      });
+
+      downloadCSV(csv, `Rekap_Semua_Proyek.csv`);
+    }
+
+    function downloadCSV(csvContent, fileName) {
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  </script>
 </body>
 </html>
