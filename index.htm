@@ -13,6 +13,28 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     body { font-family: 'Inter', sans-serif; }
+    * { box-sizing: border-box; }
+    input, select, button { max-width: 100%; }
+    button { touch-action: manipulation; }
+    .table-scroll { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    @media (max-width: 640px) {
+      body { font-size: 14px; }
+      header > div:first-child { align-items: stretch; }
+      header > div:first-child > div:last-child { width: 100%; }
+      header > div:first-child > div:last-child button { flex: 1 1 calc(50% - .5rem); justify-content: center; }
+      main { padding-left: .75rem !important; padding-right: .75rem !important; padding-top: 1rem !important; }
+      section { min-width: 0; }
+      .overflow-x-auto table { min-width: 560px; }
+      #masterProductTable { min-width: 420px; }
+      #dbConnectionBadge, #saveStatus { font-size: 10px; }
+      #productModal, #projectModal { align-items: flex-start; overflow-y: auto; }
+      #productModal > div, #projectModal > div { margin-top: 1rem; margin-bottom: 1rem; max-height: calc(100dvh - 2rem); overflow-y: auto; }
+      #productModal form, #projectModal form { padding: 1rem; }
+      .mobile-stack { flex-direction: column; align-items: stretch; }
+    }
+    @media (min-width: 641px) and (max-width: 1023px) {
+      main { padding-left: 1rem !important; padding-right: 1rem !important; }
+    }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
@@ -32,9 +54,6 @@
       <div class="flex flex-wrap items-center justify-center gap-2">
         <button onclick="fetchFromGoogleSheets(true)" class="bg-indigo-500 hover:bg-indigo-400 text-white text-sm font-medium px-3 py-2 rounded-lg transition flex items-center gap-2 shadow-sm border border-indigo-400" title="Tarik data terbaru dari Google Sheets">
           <i class="fa-solid fa-arrows-rotate"></i> Sync
-        </button>
-        <button onclick="openDbConfigModal()" class="bg-slate-800 hover:bg-slate-700 text-white text-sm font-medium px-3 py-2 rounded-lg transition flex items-center gap-2 shadow-sm" title="Atur URL Google Apps Script">
-          <i class="fa-solid fa-database"></i> Setup DB
         </button>
         <button onclick="exportSingleProjectCSV()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium px-3 py-2 rounded-lg transition flex items-center gap-2 shadow-sm border border-indigo-500">
           <i class="fa-solid fa-file-export"></i> Ekspor Proyek
@@ -134,20 +153,52 @@
         </div>
 
         <div class="p-5 space-y-4">
-          <div class="bg-slate-50 p-3.5 rounded-lg border border-slate-200 flex flex-col sm:flex-row gap-3 items-end">
-            <div class="flex-grow w-full">
-              <label class="block text-xs font-medium text-slate-600 mb-1">Pilih Produk dari Master</label>
-              <select id="selectProduct" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                <option value="">-- Pilih Barang --</option>
-              </select>
+          <div class="bg-slate-50 p-3.5 rounded-lg border border-slate-200 space-y-2">
+            <div class="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-end">
+              <div class="flex-grow w-full relative" id="productPickerWrapper">
+                <label for="productSearchInput" class="block text-xs font-semibold text-slate-600 mb-1">Pilih Produk dari Master</label>
+                <div class="relative flex items-center">
+                  <i class="fa-solid fa-magnifying-glass absolute left-3 text-slate-400 text-xs pointer-events-none"></i>
+                  <input type="text" id="productSearchInput" autocomplete="off"
+                    placeholder="Ketik nama produk atau SKU..."
+                    class="w-full bg-white border border-slate-300 rounded-lg pl-8 pr-8 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                    onfocus="openProductDropdown()"
+                    oninput="handleProductSearchInput()"
+                    onkeydown="handleProductSearchKey(event)">
+                  <button type="button" id="clearProductSearchBtn" onclick="clearProductSelection()" title="Hapus pilihan"
+                    class="hidden absolute right-2.5 text-slate-400 hover:text-slate-600 p-1 rounded-full">
+                    <i class="fa-solid fa-xmark text-xs"></i>
+                  </button>
+                </div>
+
+                <!-- Custom Dropdown Saran Produk -->
+                <div id="productDropdownList" role="listbox"
+                  class="hidden absolute left-0 right-0 mt-1.5 bg-white border border-slate-200 rounded-xl shadow-lg max-h-64 overflow-y-auto z-30 divide-y divide-slate-100">
+                </div>
+
+                <select id="selectProduct" class="hidden" aria-hidden="true" tabindex="-1">
+                  <option value="">-- Pilih Barang --</option>
+                </select>
+              </div>
+
+              <div class="flex gap-2.5 items-end shrink-0">
+                <div class="w-24 sm:w-24">
+                  <label for="inputQty" class="block text-xs font-semibold text-slate-600 mb-1">Qty</label>
+                  <input type="text" inputmode="decimal" id="inputQty" value="1" placeholder="1"
+                    onkeydown="if(event.key==='Enter'){event.preventDefault();addItemToProject();}"
+                    class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm text-center font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+                <button type="button" onclick="addItemToProject()"
+                  class="flex-1 sm:flex-initial bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-semibold px-4 py-2 rounded-lg text-sm transition shrink-0 flex items-center justify-center gap-1.5 h-[38px] shadow-xs">
+                  <i class="fa-solid fa-plus text-xs"></i> Tambah
+                </button>
+              </div>
             </div>
-            <div class="w-full sm:w-28">
-              <label class="block text-xs font-medium text-slate-600 mb-1">Jumlah (Qty)</label>
-              <input type="number" id="inputQty" min="1" value="1" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+
+            <!-- Baris Info Status Produk Terpilih -->
+            <div id="selectedProductPreview" class="flex items-center justify-between text-[11px] text-slate-500 px-0.5">
+              <span>Klik kolom pencarian atau ketik nama/SKU untuk memilih produk.</span>
             </div>
-            <button onclick="addItemToProject()" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-lg text-sm transition shrink-0 flex items-center justify-center gap-1">
-              <i class="fa-solid fa-plus"></i> Tambah
-            </button>
           </div>
 
           <div class="overflow-x-auto border border-slate-200 rounded-lg">
@@ -225,32 +276,6 @@
       KAYANA APPS &copy; 2026 - Rekapan Data Base Produk & Multi-Proyek (Cloud Sync)
     </div>
   </footer>
-
-  <!-- MODAL: Pengaturan Google Sheets URL -->
-  <div id="dbConfigModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
-    <div class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
-      <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-        <h3 class="font-bold text-slate-800">Koneksi Database Google Sheets</h3>
-        <button onclick="closeDbConfigModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-      <form onsubmit="saveDbConfig(event)" class="p-5 space-y-4">
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">URL Web App Google Apps Script</label>
-          <input type="url" id="gasUrlInput" required placeholder="https://script.google.com/macros/s/.../exec" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500">
-          <p class="text-[11px] text-slate-500 mt-1.5">Paste URL dari menu <b>Deploy > Web app</b> di Google Sheets Anda. Gunakan URL yang sama di HP/laptop lain agar data sinkron.</p>
-        </div>
-        <div class="pt-2 flex justify-between items-center gap-2">
-          <button type="button" onclick="pushLocalToSheets()" class="px-3 py-2 bg-amber-50 border border-amber-200 text-amber-700 text-xs font-semibold rounded-lg hover:bg-amber-100" title="Unggah data lokal saat ini ke Google Sheets kosong">
-            <i class="fa-solid fa-cloud-arrow-up"></i> Upload Data Lokal ke Sheet
-          </button>
-          <div class="flex gap-2">
-            <button type="button" onclick="closeDbConfigModal()" class="px-3 py-2 border border-slate-300 text-slate-600 text-xs font-semibold rounded-lg hover:bg-slate-50">Batal</button>
-            <button type="submit" class="px-4 py-2 bg-indigo-600 text-white text-xs font-semibold rounded-lg hover:bg-indigo-700">Simpan & Sync</button>
-          </div>
-        </div>
-      </form>
-    </div>
-  </div>
 
   <!-- MODAL: Tambah / Edit Master Produk -->
   <div id="productModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
@@ -372,7 +397,7 @@
       if (getGasUrl()) {
         await fetchFromGoogleSheets(false);
       } else {
-        setSaveStatus('Mode Lokal (Klik "Setup DB" untuk hubungkan Google Sheets)', true);
+        setSaveStatus('Mode Lokal (URL Google Sheets belum diatur)', true);
       }
     });
 
@@ -394,7 +419,12 @@
       }
     }
 
+    function escapeStatusText(value) {
+      return String(value).replace(/[&<>\"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[ch]));
+    }
+
     function setSaveStatus(message, isError = false, isLoading = false) {
+      message = escapeStatusText(message);
       const el = document.getElementById('saveStatus');
       if (!el) return;
       if (isLoading) {
@@ -410,43 +440,56 @@
     }
 
     // --- GOOGLE SHEETS CLOUD SYNC ---
+    async function readCloudResponse(res, operation) {
+      const raw = await res.text();
+      let data;
+      try {
+        data = JSON.parse(raw);
+      } catch (_) {
+        const preview = (raw || '').replace(/\s+/g, ' ').slice(0, 180);
+        throw new Error(`${operation}: server tidak mengirim JSON yang valid. HTTP ${res.status}. ${preview || 'Respons kosong.'}`);
+      }
+      if (!res.ok) throw new Error(`${operation}: HTTP ${res.status} ${res.statusText || ''}`.trim());
+      return data;
+    }
+
     async function fetchFromGoogleSheets(showAlert = false) {
       const url = getGasUrl();
       if (!url) {
-        if (showAlert) openDbConfigModal();
-        return;
+        if (showAlert) alert('URL Google Sheets belum diatur di kode aplikasi.');
+        return false;
       }
 
       setSaveStatus('Menarik data dari Google Sheets...', false, true);
       try {
-        const res = await fetch(url);
-        const data = await res.json();
-
-        if (data.status === 'success') {
-          // Jika sheet masih benar-benar kosong, pertahankan data lokal agar tidak tertimpa kosong
-          if (data.masterProducts.length === 0 && data.projects.length === 0) {
-            setSaveStatus('Sheet kosong. Klik Setup DB > Upload Data Lokal ke Sheet', true);
-            if (showAlert) alert('Google Sheet terhubung, namun tabel masih kosong. Gunakan tombol "Upload Data Lokal ke Sheet" di menu Setup DB untuk mengisi data awal.');
-            return;
-          }
-
-          masterProducts = data.masterProducts;
-          projects = data.projects.length > 0 ? data.projects : projects;
-          if (!projects.some(p => p.id === activeProjectId)) {
-            activeProjectId = projects[0]?.id || '';
-          }
-
-          saveLocalOnly();
-          renderAllUI();
-          setSaveStatus('Tersinkron dengan Google Sheets (' + new Date().toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'}) + ')');
-          if (showAlert) alert('Sinkronisasi berhasil! Data terbaru dari Google Sheets telah dimuat.');
-        } else {
-          throw new Error(data.message || 'Gagal membaca data');
+        const res = await fetch(url, { method: 'GET', cache: 'no-store' });
+        const data = await readCloudResponse(res, 'Gagal membaca Google Sheets');
+        if (data.status !== 'success') throw new Error(data.message || 'Server tidak mengembalikan status success.');
+        if (!Array.isArray(data.masterProducts) || !Array.isArray(data.projects)) {
+          throw new Error('Format data dari Google Sheets tidak sesuai. Pastikan Apps Script mengirim masterProducts dan projects dalam bentuk array.');
         }
+
+        // Jika sheet masih benar-benar kosong, pertahankan data lokal agar tidak tertimpa kosong
+        if (data.masterProducts.length === 0 && data.projects.length === 0) {
+          setSaveStatus('Sheet kosong. Belum ada data di Google Sheets', true);
+          if (showAlert) alert('Google Sheet berhasil dihubungi, tetapi datanya masih kosong. Gunakan tombol "Upload Data Lokal ke Sheet" untuk mengisi data awal.');
+          return false;
+        }
+
+        masterProducts = data.masterProducts;
+        projects = data.projects.length > 0 ? data.projects : projects;
+        if (!projects.some(p => p.id === activeProjectId)) activeProjectId = projects[0]?.id || '';
+        saveLocalOnly();
+        renderAllUI();
+        setSaveStatus('Tersinkron dengan Google Sheets (' + new Date().toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'}) + ')');
+        if (showAlert) alert('Sinkronisasi berhasil! Data terbaru dari Google Sheets telah dimuat.');
+        return true;
       } catch (err) {
-        console.error(err);
-        setSaveStatus('Gagal sinkronisasi (Menampilkan cache lokal)', true);
-        if (showAlert) alert('Gagal terhubung ke Google Sheets. Pastikan URL Web App benar dan akses diatur ke "Anyone".');
+        console.error('Cloud read error:', err);
+        const message = err && err.message ? err.message : String(err);
+        setSaveStatus('Gagal sinkronisasi: ' + message.slice(0, 110), true);
+        if (showAlert) alert('Gagal membaca Google Sheets. Detail: ' + message + '\n\nPeriksa URL Web App, akses deployment (Anyone), serta fungsi doGet() pada Apps Script.');
+        return false;
       }
     }
 
@@ -467,64 +510,30 @@
         setSaveStatus('Tersimpan lokal (Belum terhubung ke Google Sheets)', true);
         return true;
       }
-
       setSaveStatus('Menyimpan ke Google Sheets...', false, true);
       clearTimeout(syncTimeout);
-      syncTimeout = setTimeout(() => {
-        pushToCloud(url);
-      }, 800);
+      syncTimeout = setTimeout(() => { pushToCloud(url); }, 800);
       return true;
     }
 
     async function pushToCloud(url) {
       try {
+        const payload = JSON.stringify({ masterProducts, projects });
         const res = await fetch(url, {
           method: 'POST',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ masterProducts, projects })
+          body: payload
         });
-        const result = await res.json();
-        if (result.status === 'success') {
-          setSaveStatus('Tersimpan di Google Sheets (' + new Date().toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'}) + ')');
-        } else {
-          throw new Error(result.message);
-        }
+        const result = await readCloudResponse(res, 'Gagal menyimpan Google Sheets');
+        if (result.status !== 'success') throw new Error(result.message || 'Server tidak mengonfirmasi penyimpanan.');
+        setSaveStatus('Tersimpan di Google Sheets (' + new Date().toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'}) + ')');
+        return true;
       } catch (err) {
         console.error('Cloud save error:', err);
-        setSaveStatus('Gagal simpan ke Cloud! Cek koneksi / Setup DB', true);
+        const message = err && err.message ? err.message : String(err);
+        setSaveStatus('Gagal simpan: ' + message.slice(0, 110), true);
+        return false;
       }
-    }
-
-    // --- DB CONFIG MODAL ---
-    function openDbConfigModal() {
-      document.getElementById('gasUrlInput').value = getGasUrl();
-      document.getElementById('dbConfigModal').classList.remove('hidden');
-    }
-
-    function closeDbConfigModal() {
-      document.getElementById('dbConfigModal').classList.add('hidden');
-    }
-
-    async function saveDbConfig(e) {
-      e.preventDefault();
-      const url = document.getElementById('gasUrlInput').value.trim();
-      localStorage.setItem('kayana_gas_url', url);
-      updateConnectionBadge();
-      closeDbConfigModal();
-      await fetchFromGoogleSheets(true);
-    }
-
-    async function pushLocalToSheets() {
-      const url = document.getElementById('gasUrlInput').value.trim();
-      if (!url) return alert('Masukkan URL Web App terlebih dahulu!');
-      if (!confirm('Data di Google Sheet akan ditimpa dengan data yang ada di layar ini sekarang. Lanjutkan?')) return;
-      
-      localStorage.setItem('kayana_gas_url', url);
-      updateConnectionBadge();
-      closeDbConfigModal();
-      setSaveStatus('Mengunggah data ke Google Sheets...', false, true);
-      await pushToCloud(url);
-      alert('Data berhasil diunggah ke Google Sheets!');
     }
 
     // --- EXPORT & IMPORT ---
@@ -581,6 +590,25 @@
       return 'Rp ' + Number(amount || 0).toLocaleString('id-ID');
     }
 
+    // Mendukung input desimal Indonesia (0,5) maupun format titik (0.5).
+    function parseLocalizedNumber(value) {
+      if (typeof value === 'number') return Number.isFinite(value) ? value : 0;
+      const normalized = String(value ?? '').trim().replace(/\\s/g, '').replace(',', '.');
+      if (!normalized) return 0;
+      const parsed = Number(normalized);
+      return Number.isFinite(parsed) ? parsed : NaN;
+    }
+
+    function formatQty(value) {
+      return Number(value || 0).toLocaleString('id-ID', { maximumFractionDigits: 4 });
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, ch => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[ch]));
+    }
+
     // --- PROJECT MANAGEMENT ---
     function renderProjectSelector() {
       const select = document.getElementById('projectSelect');
@@ -613,7 +641,7 @@
     function handleProjectSubmit(e) {
       e.preventDefault();
       const name = document.getElementById('newProjectName').value.trim();
-      const margin = parseFloat(document.getElementById('newProjectMargin').value) || 0;
+      const margin = parseLocalizedNumber(document.getElementById('newProjectMargin').value) || 0;
       
       const newProj = {
         id: 'proj-' + Date.now(),
@@ -670,10 +698,10 @@
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-50 transition';
         tr.innerHTML = `
-          <td class="py-2.5 px-3 font-medium text-slate-800">${name}</td>
+          <td class="py-2.5 px-3 font-medium text-slate-800">${escapeHtml(name)}</td>
           <td class="py-2.5 px-3 text-right text-slate-600">${formatRp(price)}</td>
           <td class="py-2.5 px-3 text-center">
-            <input type="number" min="1" value="${item.qty}" onchange="updateItemQty(${index}, this.value)" class="w-16 text-center border border-slate-300 rounded px-1 py-0.5 text-xs font-semibold">
+            <input type="text" inputmode="decimal" min="0.0001" value="${formatQty(item.qty)}" onchange="updateItemQty(${index}, this.value)" class="w-20 text-center border border-slate-300 rounded px-1 py-1 text-xs font-semibold">
           </td>
           <td class="py-2.5 px-3 text-right font-semibold text-slate-800">${formatRp(itemSubtotal)}</td>
           <td class="py-2.5 px-3 text-center">
@@ -701,12 +729,12 @@
 
     function updateMarginFromRange(val) {
       document.getElementById('marginInput').value = val;
-      updateProjectMargin(parseFloat(val) || 0);
+      updateProjectMargin(parseLocalizedNumber(val) || 0);
     }
 
     function updateMarginFromInput(val) {
       document.getElementById('marginRange').value = val;
-      updateProjectMargin(parseFloat(val) || 0);
+      updateProjectMargin(parseLocalizedNumber(val) || 0);
     }
 
     function updateProjectMargin(margin) {
@@ -720,10 +748,16 @@
 
     function addItemToProject() {
       const productId = document.getElementById('selectProduct').value;
-      const qty = parseInt(document.getElementById('inputQty').value) || 1;
+      const qty = parseLocalizedNumber(document.getElementById('inputQty').value);
 
       if (!productId) {
-        alert('Silakan pilih produk terlebih dahulu!');
+        alert('Silakan pilih produk dari daftar saran terlebih dahulu.');
+        document.getElementById('productSearchInput').focus();
+        return;
+      }
+      if (!Number.isFinite(qty) || qty <= 0) {
+        alert('Jumlah harus berupa angka lebih besar dari 0. Contoh: 0,5 atau 1,25.');
+        document.getElementById('inputQty').focus();
         return;
       }
 
@@ -731,10 +765,15 @@
       if (proj) {
         const existingItem = proj.items.find(i => i.productId === productId);
         if (existingItem) {
-          existingItem.qty += qty;
+          existingItem.qty = Number(existingItem.qty || 0) + qty;
         } else {
           proj.items.push({ productId, qty });
         }
+        document.getElementById('inputQty').value = '1';
+        document.getElementById('productSearchInput').value = '';
+        document.getElementById('selectProduct').value = '';
+        updateSelectedProductPreview('');
+        closeProductDropdown();
         saveData();
         renderActiveProject();
       }
@@ -742,8 +781,14 @@
 
     function updateItemQty(index, newQty) {
       const proj = projects.find(p => p.id === activeProjectId);
+      const qty = parseLocalizedNumber(newQty);
+      if (!Number.isFinite(qty) || qty <= 0) {
+        alert('Jumlah harus lebih besar dari 0. Contoh: 0,5.');
+        renderActiveProject();
+        return;
+      }
       if (proj && proj.items[index]) {
-        proj.items[index].qty = Math.max(1, parseInt(newQty) || 1);
+        proj.items[index].qty = qty;
         saveData();
         renderActiveProject();
       }
@@ -773,8 +818,8 @@
         tr.className = 'hover:bg-slate-50 transition';
         tr.innerHTML = `
           <td class="py-2 px-3">
-            <span class="text-[10px] font-mono text-slate-400 block">${p.sku}</span>
-            <span class="font-medium text-slate-800">${p.name}</span>
+            <span class="text-[10px] font-mono text-slate-400 block">${escapeHtml(p.sku)}</span>
+            <span class="font-medium text-slate-800">${escapeHtml(p.name)}</span>
           </td>
           <td class="py-2 px-3 text-right font-semibold text-slate-700">${formatRp(p.price)}</td>
           <td class="py-2 px-3 text-center">
@@ -788,16 +833,246 @@
       });
     }
 
+    let highlightedDropdownIndex = -1;
+    let currentFilteredProducts = [];
+
     function renderProductDropdown() {
       const select = document.getElementById('selectProduct');
+      const currentVal = select.value;
       select.innerHTML = '<option value="">-- Pilih Barang --</option>';
       masterProducts.forEach(p => {
         const opt = document.createElement('option');
         opt.value = p.id;
-        opt.textContent = `[${p.sku}] ${p.name} - (${formatRp(p.price)})`;
+        opt.textContent = `[${p.sku}] ${p.name} — ${formatRp(p.price)}`;
         select.appendChild(opt);
       });
+      if (currentVal && masterProducts.some(p => p.id === currentVal)) {
+        select.value = currentVal;
+        updateSelectedProductPreview(currentVal);
+      } else {
+        updateSelectedProductPreview('');
+      }
     }
+
+    function highlightMatchText(text, query) {
+      const safeText = escapeHtml(text);
+      if (!query) return safeText;
+      const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(`(${escapedQuery})`, 'gi');
+      return safeText.replace(regex, '<mark class="bg-indigo-100 text-indigo-900 font-semibold rounded px-0.5">$1</mark>');
+    }
+
+    function updateSelectedProductPreview(productId) {
+      const preview = document.getElementById('selectedProductPreview');
+      const clearBtn = document.getElementById('clearProductSearchBtn');
+      const input = document.getElementById('productSearchInput');
+      if (!preview) return;
+
+      if (input && input.value.trim()) {
+        clearBtn?.classList.remove('hidden');
+      } else {
+        clearBtn?.classList.add('hidden');
+      }
+
+      const prod = masterProducts.find(p => p.id === productId);
+      if (prod) {
+        preview.innerHTML = `
+          <span class="text-emerald-700 font-medium flex items-center gap-1.5 truncate">
+            <i class="fa-solid fa-circle-check text-emerald-600"></i>
+            <span>Terpilih: <b>${escapeHtml(prod.sku)}</b> — ${escapeHtml(prod.name)}</span>
+          </span>
+          <span class="font-semibold text-slate-700 shrink-0 ml-2">${formatRp(prod.price)}</span>
+        `;
+      } else {
+        preview.innerHTML = `<span>Klik kolom pencarian atau ketik nama/SKU untuk memilih produk.</span>`;
+      }
+    }
+
+    function renderDropdownOptions(query = '') {
+      const listEl = document.getElementById('productDropdownList');
+      if (!listEl) return;
+
+      const q = query.trim().toLocaleLowerCase('id-ID');
+      currentFilteredProducts = q
+        ? masterProducts.filter(p =>
+            p.name.toLocaleLowerCase('id-ID').includes(q) ||
+            p.sku.toLocaleLowerCase('id-ID').includes(q)
+          )
+        : [...masterProducts];
+
+      if (currentFilteredProducts.length === 0) {
+        highlightedDropdownIndex = -1;
+        listEl.innerHTML = `
+          <div class="px-3.5 py-4 text-center text-xs text-slate-500">
+            <i class="fa-regular fa-face-frown text-slate-400 text-base mb-1 block"></i>
+            Produk "<b>${escapeHtml(query)}</b>" tidak ditemukan di Master.
+          </div>
+        `;
+        return;
+      }
+
+      if (highlightedDropdownIndex >= currentFilteredProducts.length) {
+        highlightedDropdownIndex = 0;
+      }
+
+      const selectedId = document.getElementById('selectProduct').value;
+      listEl.innerHTML = currentFilteredProducts.map((p, idx) => {
+        const isHighlighted = idx === highlightedDropdownIndex;
+        const isSelected = p.id === selectedId;
+        return `
+          <button type="button" role="option" aria-selected="${isSelected}"
+            data-index="${idx}"
+            onmousedown="event.preventDefault(); selectProductFromDropdown('${escapeHtml(p.id)}')"
+            onmouseenter="setDropdownHighlight(${idx})"
+            class="w-full text-left px-3.5 py-2.5 flex items-center justify-between gap-3 transition cursor-pointer ${isHighlighted ? 'bg-indigo-50' : 'hover:bg-slate-50'} ${isSelected ? 'bg-indigo-50/70' : ''}">
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-1.5">
+                <span class="inline-block text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200 shrink-0">
+                  ${highlightMatchText(p.sku, query.trim())}
+                </span>
+                ${isSelected ? '<i class="fa-solid fa-check text-[10px] text-indigo-600"></i>' : ''}
+              </div>
+              <p class="text-xs sm:text-sm font-medium text-slate-800 truncate mt-0.5">
+                ${highlightMatchText(p.name, query.trim())}
+              </p>
+            </div>
+            <div class="text-right shrink-0">
+              <span class="text-xs font-bold text-indigo-700 bg-indigo-50/80 px-2 py-1 rounded-md border border-indigo-100">
+                ${formatRp(p.price)}
+              </span>
+            </div>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function setDropdownHighlight(idx) {
+      highlightedDropdownIndex = idx;
+      const listEl = document.getElementById('productDropdownList');
+      if (!listEl) return;
+      const buttons = listEl.querySelectorAll('button[data-index]');
+      buttons.forEach((btn, i) => {
+        if (i === idx) {
+          btn.classList.add('bg-indigo-50');
+        } else {
+          btn.classList.remove('bg-indigo-50');
+        }
+      });
+    }
+
+    function openProductDropdown() {
+      const listEl = document.getElementById('productDropdownList');
+      const input = document.getElementById('productSearchInput');
+      const select = document.getElementById('selectProduct');
+      if (!listEl) return;
+      // Jika sudah ada produk terpilih, tampilkan semua opsi agar mudah ganti produk
+      const query = select.value ? '' : (input ? input.value : '');
+      highlightedDropdownIndex = 0;
+      renderDropdownOptions(query);
+      listEl.classList.remove('hidden');
+    }
+
+    function closeProductDropdown() {
+      const listEl = document.getElementById('productDropdownList');
+      if (listEl) listEl.classList.add('hidden');
+      highlightedDropdownIndex = -1;
+    }
+
+    function handleProductSearchInput() {
+      const input = document.getElementById('productSearchInput');
+      const select = document.getElementById('selectProduct');
+      const listEl = document.getElementById('productDropdownList');
+      const typed = input.value;
+
+      // Reset pilihan sebelumnya saat user mulai mengetik ulang
+      select.value = '';
+      updateSelectedProductPreview('');
+
+      highlightedDropdownIndex = 0;
+      renderDropdownOptions(typed);
+      listEl.classList.remove('hidden');
+    }
+
+    function selectProductFromDropdown(productId, moveFocusToQty = true) {
+      const prod = masterProducts.find(p => p.id === productId);
+      const input = document.getElementById('productSearchInput');
+      const select = document.getElementById('selectProduct');
+      if (!prod) return;
+
+      select.value = prod.id;
+      input.value = `${prod.name} (${prod.sku})`;
+      updateSelectedProductPreview(prod.id);
+      closeProductDropdown();
+
+      if (moveFocusToQty) {
+        const qtyInput = document.getElementById('inputQty');
+        if (qtyInput) {
+          qtyInput.focus();
+          qtyInput.select();
+        }
+      }
+    }
+
+    function clearProductSelection() {
+      const input = document.getElementById('productSearchInput');
+      const select = document.getElementById('selectProduct');
+      if (input) {
+        input.value = '';
+        input.focus();
+      }
+      if (select) select.value = '';
+      updateSelectedProductPreview('');
+      openProductDropdown();
+    }
+
+    function handleProductSearchKey(event) {
+      const listEl = document.getElementById('productDropdownList');
+      const isOpen = listEl && !listEl.classList.contains('hidden');
+
+      if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        if (!isOpen) {
+          openProductDropdown();
+          return;
+        }
+        if (currentFilteredProducts.length > 0) {
+          highlightedDropdownIndex = (highlightedDropdownIndex + 1) % currentFilteredProducts.length;
+          setDropdownHighlight(highlightedDropdownIndex);
+          const activeBtn = listEl.querySelector(`button[data-index="${highlightedDropdownIndex}"]`);
+          activeBtn?.scrollIntoView({ block: 'nearest' });
+        }
+      } else if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        if (!isOpen) {
+          openProductDropdown();
+          return;
+        }
+        if (currentFilteredProducts.length > 0) {
+          highlightedDropdownIndex = (highlightedDropdownIndex - 1 + currentFilteredProducts.length) % currentFilteredProducts.length;
+          setDropdownHighlight(highlightedDropdownIndex);
+          const activeBtn = listEl.querySelector(`button[data-index="${highlightedDropdownIndex}"]`);
+          activeBtn?.scrollIntoView({ block: 'nearest' });
+        }
+      } else if (event.key === 'Escape') {
+        closeProductDropdown();
+      } else if (event.key === 'Enter') {
+        event.preventDefault();
+        if (isOpen && currentFilteredProducts.length > 0) {
+          const targetIdx = highlightedDropdownIndex >= 0 ? highlightedDropdownIndex : 0;
+          selectProductFromDropdown(currentFilteredProducts[targetIdx].id, true);
+        } else if (document.getElementById('selectProduct').value) {
+          document.getElementById('inputQty').focus();
+        }
+      }
+    }
+
+    // Tutup dropdown saat klik di luar area picker
+    document.addEventListener('click', (event) => {
+      const wrapper = document.getElementById('productPickerWrapper');
+      if (wrapper && !wrapper.contains(event.target)) {
+        closeProductDropdown();
+      }
+    });
 
     function openProductModal(id = null) {
       document.getElementById('productForm').reset();
